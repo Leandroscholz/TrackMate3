@@ -14,7 +14,7 @@ public class TrackSchemeActions extends AbstractActions
 	public static final String EDIT_FOCUS = "ts edit focused vertex label";
 	public static final String TOGGLE_SETTINGS_PANEL = "ts toggle settings panel";
 
-	public static final String[] EDIT_FOCUS_KEYS = new String[] { "ENTER" };
+	public static final String[] EDIT_FOCUS_KEYS = new String[] { "shift ENTER" };
 	public static final String[] TOGGLE_SETTINGS_PANEL_KEYS = new String[] { "T" };
 
 
