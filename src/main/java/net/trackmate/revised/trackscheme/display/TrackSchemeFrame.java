@@ -13,6 +13,12 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
+import org.scijava.ui.behaviour.MouseAndKeyHandler;
+import org.scijava.ui.behaviour.io.InputTriggerConfig;
+
+import bdv.BehaviourTransformEventHandler;
+import bdv.viewer.InputActionBindings;
+import bdv.viewer.TriggerBehaviourBindings;
 import net.imglib2.ui.TransformEventHandler;
 import net.imglib2.ui.util.GuiUtil;
 import net.trackmate.revised.context.ContextChooser;
@@ -26,13 +32,6 @@ import net.trackmate.revised.ui.grouping.GroupHandle;
 import net.trackmate.revised.ui.grouping.GroupLocksPanel;
 import net.trackmate.revised.ui.util.InvokeOnEDT;
 import net.trackmate.undo.UndoPointMarker;
-
-import org.scijava.ui.behaviour.MouseAndKeyHandler;
-import org.scijava.ui.behaviour.io.InputTriggerConfig;
-
-import bdv.BehaviourTransformEventHandler;
-import bdv.viewer.InputActionBindings;
-import bdv.viewer.TriggerBehaviourBindings;
 
 public class TrackSchemeFrame extends JFrame
 {
@@ -97,8 +96,8 @@ public class TrackSchemeFrame extends JFrame
 		final ContextChooserPanel< ? > contextChooserPanel = new ContextChooserPanel<>( contextChooser );
 		settingsPanel.add( contextChooserPanel );
 		settingsPanel.add( Box.createHorizontalGlue() );
-		
-		settingsPanel.add( new TrackSchemeSearchField( graph ));
+
+		settingsPanel.add( new TrackSchemeSearchField( graph, navigation ) );
 
 		add( settingsPanel, BorderLayout.NORTH );
 		isSettingsPanelVisible = true;

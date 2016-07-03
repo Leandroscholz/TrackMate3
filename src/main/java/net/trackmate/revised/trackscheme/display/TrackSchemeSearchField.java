@@ -18,6 +18,7 @@ import javax.swing.border.Border;
 
 import net.trackmate.graph.GraphChangeListener;
 import net.trackmate.revised.trackscheme.TrackSchemeGraph;
+import net.trackmate.revised.trackscheme.TrackSchemeNavigation;
 import net.trackmate.revised.trackscheme.TrackSchemeVertex;
 
 public class TrackSchemeSearchField extends JTextField
@@ -34,18 +35,21 @@ public class TrackSchemeSearchField extends JTextField
 
 	private static final ImageIcon NOT_FOUND_ICON = new ImageIcon( TrackSchemeSearchField.class.getResource( "find-24x24.png" ) );
 
-	private TrackSchemeGraph< ?, ? > graph;
+	private final TrackSchemeGraph< ?, ? > graph;
 
-	private int leftInset;
+	private final int leftInset;
 
 	private ImageIcon icon;
 
-	public TrackSchemeSearchField( TrackSchemeGraph< ?, ? > graph )
+	private final TrackSchemeNavigation navigation;
+
+	public TrackSchemeSearchField( final TrackSchemeGraph< ?, ? > graph, final TrackSchemeNavigation navigation )
 	{
 		this.graph = graph;
+		this.navigation = navigation;
 
-		Border border = UIManager.getBorder( "TextField.border" );
-		JTextField dummy = new JTextField();
+		final Border border = UIManager.getBorder( "TextField.border" );
+		final JTextField dummy = new JTextField();
 		leftInset = border.getBorderInsets( dummy ).left;
 
 		icon = UNFOCUSED_ICON;
@@ -70,12 +74,12 @@ public class TrackSchemeSearchField extends JTextField
 			}
 		} );
 
-		SearchAction sa = new SearchAction();
+		final SearchAction sa = new SearchAction();
 		graph.addGraphChangeListener( sa );
 		addActionListener( new ActionListener()
 		{
 			@Override
-			public void actionPerformed( ActionEvent e )
+			public void actionPerformed( final ActionEvent e )
 			{
 				setEnabled( false );
 				new Thread()
@@ -84,7 +88,7 @@ public class TrackSchemeSearchField extends JTextField
 					{
 						try
 						{
-							boolean found = sa.search( getText() );
+							final boolean found = sa.search( getText() );
 							icon = found ? FOUND_ICON : NOT_FOUND_ICON;
 						}
 						finally
@@ -100,35 +104,35 @@ public class TrackSchemeSearchField extends JTextField
 	}
 
 	@Override
-	protected void paintComponent( Graphics g )
+	protected void paintComponent( final Graphics g )
 	{
 		super.paintComponent( g );
 
 		int textX = 2;
 		if ( this.icon != null )
 		{
-			int iconWidth = icon.getIconWidth();
-			int iconHeight = icon.getIconHeight();
-			int x = leftInset;
+			final int iconWidth = icon.getIconWidth();
+			final int iconHeight = icon.getIconHeight();
+			final int x = leftInset;
 			textX = x + iconWidth + 2;
-			int y = ( this.getHeight() - iconHeight ) / 2;
+			final int y = ( this.getHeight() - iconHeight ) / 2;
 			icon.paintIcon( this, g, x, y );
 		}
 		setMargin( new Insets( 2, textX, 2, 2 ) );
 
 		if ( !hasFocus() && getText().equals( "" ) )
 		{
-			int height = this.getHeight();
-			Font prev = g.getFont();
-			Font italic = prev.deriveFont( Font.ITALIC );
-			Color prevColor = g.getColor();
+			final int height = this.getHeight();
+			final Font prev = g.getFont();
+			final Font italic = prev.deriveFont( Font.ITALIC );
+			final Color prevColor = g.getColor();
 			g.setFont( italic );
 			g.setColor( UIManager.getColor( "textInactiveText" ) );
-			int h = g.getFontMetrics().getHeight();
-			int textBottom = ( height - h ) / 2 + h - 4;
-			int x = this.getInsets().left;
-			Graphics2D g2d = ( Graphics2D ) g;
-			RenderingHints hints = g2d.getRenderingHints();
+			final int h = g.getFontMetrics().getHeight();
+			final int textBottom = ( height - h ) / 2 + h - 4;
+			final int x = this.getInsets().left;
+			final Graphics2D g2d = ( Graphics2D ) g;
+			final RenderingHints hints = g2d.getRenderingHints();
 			g2d.setRenderingHint( RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON );
 			g2d.drawString( UNFOCUSED_TEXT, x, textBottom );
 			g2d.setRenderingHints( hints );
@@ -151,7 +155,7 @@ public class TrackSchemeSearchField extends JTextField
 		private synchronized boolean search( final String text )
 		{
 			graphChanged = false;
-			TrackSchemeVertex start = graph.vertexRef();
+			final TrackSchemeVertex start = graph.vertexRef();
 			TrackSchemeVertex v = next();
 			start.refTo( v );
 
@@ -159,20 +163,17 @@ public class TrackSchemeSearchField extends JTextField
 			boolean set = false;
 			while ( !graphChanged && ( !set ||  !( v = next() ).equals( start ) ) )
 			{
-				if (!set) 
+				if (!set)
 					set = true;
 
 				if ( v.getLabel().contains( text ) )
 				{
 					graph.releaseRef( start );
-					System.out.println( v ); // DEBUG
-					// DO SOMETHING TODO.
+					navigation.notifyNavigateToVertex( v );
 					return true;
 				}
 			}
 
-			System.out.println( "not found with graphchanged = " + graphChanged ); // DEBUG
-			
 			graph.releaseRef( start );
 			return false;
 		}
