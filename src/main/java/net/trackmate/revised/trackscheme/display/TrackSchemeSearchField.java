@@ -7,25 +7,16 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.RenderingHints;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.font.TextAttribute;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.util.Collections;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Iterator;
-import java.util.Map;
 
 import javax.swing.ImageIcon;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
-import javax.swing.border.LineBorder;
 
 import net.trackmate.graph.GraphChangeListener;
-import net.trackmate.graph.algorithm.traversal.DepthFirstIterator;
-import net.trackmate.revised.trackscheme.TrackSchemeEdge;
 import net.trackmate.revised.trackscheme.TrackSchemeGraph;
 import net.trackmate.revised.trackscheme.TrackSchemeVertex;
 
@@ -39,11 +30,9 @@ public class TrackSchemeSearchField extends JTextField
 
 	private static final ImageIcon UNFOCUSED_ICON = new ImageIcon( TrackSchemeSearchField.class.getResource( "find-24x24.png" ) );
 
-	private final Font normalFont;
+	private static final ImageIcon FOUND_ICON = new ImageIcon( TrackSchemeSearchField.class.getResource( "find-24x24.png" ) );
 
-	private final Font notFoundFont;
-
-	private final PropertyChangeSupport observer = new PropertyChangeSupport( this );
+	private static final ImageIcon NOT_FOUND_ICON = new ImageIcon( TrackSchemeSearchField.class.getResource( "find-24x24.png" ) );
 
 	private TrackSchemeGraph< ?, ? > graph;
 
@@ -51,24 +40,14 @@ public class TrackSchemeSearchField extends JTextField
 
 	private ImageIcon icon;
 
-	/**
-	 */
-	@SuppressWarnings( "unchecked" )
 	public TrackSchemeSearchField( TrackSchemeGraph< ?, ? > graph )
 	{
 		this.graph = graph;
 
-		normalFont = getFont();
-		@SuppressWarnings( "rawtypes" )
-		final Map attributes = normalFont.getAttributes();
-		attributes.put( TextAttribute.STRIKETHROUGH, TextAttribute.STRIKETHROUGH_ON );
-		attributes.put( TextAttribute.FOREGROUND, Color.RED.darker() );
-		notFoundFont = new Font( attributes );
-
 		Border border = UIManager.getBorder( "TextField.border" );
 		JTextField dummy = new JTextField();
 		leftInset = border.getBorderInsets( dummy ).left;
-		
+
 		icon = UNFOCUSED_ICON;
 
 		setPreferredSize( new Dimension( 80, 25 ) );
@@ -79,38 +58,51 @@ public class TrackSchemeSearchField extends JTextField
 			@Override
 			public void focusGained( final java.awt.event.FocusEvent evt )
 			{
-				searchBoxFocusGained( evt );
+				icon = FOCUSED_ICON;
 				repaint();
 			}
 
 			@Override
 			public void focusLost( final java.awt.event.FocusEvent evt )
 			{
-				searchBoxFocusLost( evt );
+				icon = UNFOCUSED_ICON;
 				repaint();
-			}
-		} );
-		addKeyListener( new KeyAdapter()
-		{
-			@Override
-			public void keyReleased( final KeyEvent e )
-			{
-				searchBoxKey( e );
 			}
 		} );
 
 		SearchAction sa = new SearchAction();
 		graph.addGraphChangeListener( sa );
-		observer.addPropertyChangeListener( sa );
+		addActionListener( new ActionListener()
+		{
+			@Override
+			public void actionPerformed( ActionEvent e )
+			{
+				setEnabled( false );
+				new Thread()
+				{
+					public void run()
+					{
+						try
+						{
+							boolean found = sa.search( getText() );
+							icon = found ? FOUND_ICON : NOT_FOUND_ICON;
+						}
+						finally
+						{
+							setEnabled( true );
+							requestFocusInWindow();
+						}
+					};
+				}.start();
+			}
+		} );
+
 	}
 
 	@Override
 	protected void paintComponent( Graphics g )
 	{
 		super.paintComponent( g );
-
-		if (hasFocus())
-			icon = hasFocus() ? FOCUSED_ICON : UNFOCUSED_ICON;
 
 		int textX = 2;
 		if ( this.icon != null )
@@ -143,92 +135,54 @@ public class TrackSchemeSearchField extends JTextField
 			g.setFont( prev );
 			g.setColor( prevColor );
 		}
-		
-
 	}
 
-	private void searchBoxKey( final KeyEvent e )
-	{
-		setFont( normalFont );
-		if ( getText().length() > 1 || e.getKeyCode() == KeyEvent.VK_ENTER )
-			observer.firePropertyChange( "Searching...", null, getText() );
-	}
-
-	private void searchBoxFocusGained( final java.awt.event.FocusEvent evt )
-	{
-		setFont( normalFont );
-		setFont( getFont().deriveFont( Font.PLAIN ) );
-	}
-
-	private void searchBoxFocusLost( final java.awt.event.FocusEvent evt )
-	{
-		setFont( normalFont );
-		setFont( getFont().deriveFont( Font.ITALIC ) );
-	}
-
-	private class SearchAction implements PropertyChangeListener, Iterator< TrackSchemeVertex >, GraphChangeListener
+	private class SearchAction implements GraphChangeListener
 	{
 
 		private Iterator< TrackSchemeVertex > iterator;
-
-		private Iterator< TrackSchemeVertex > trackIterator;
+		private boolean graphChanged;
 
 		public SearchAction()
 		{
 			reinit();
 		}
 
-		@Override
-		public void propertyChange( final PropertyChangeEvent evt )
+		private synchronized boolean search( final String text )
 		{
-			final String text = ( String ) evt.getNewValue();
-			if ( !text.isEmpty() )
-				search( text );
-		}
+			graphChanged = false;
+			TrackSchemeVertex start = graph.vertexRef();
+			TrackSchemeVertex v = next();
+			start.refTo( v );
 
-		private void search( final String text )
-		{
-			TrackSchemeVertex start = null;
-			TrackSchemeVertex v;
-			while ( ( v = next() ) != start )
+			// Avoid testing equality with unset reference.
+			boolean set = false;
+			while ( !graphChanged && ( !set ||  !( v = next() ).equals( start ) ) )
 			{
-				if ( start == null )
-					start = v;
+				if (!set) 
+					set = true;
 
 				if ( v.getLabel().contains( text ) )
 				{
+					graph.releaseRef( start );
 					System.out.println( v ); // DEBUG
-					return;
+					// DO SOMETHING TODO.
+					return true;
 				}
 			}
-			setFont( notFoundFont );
 
+			System.out.println( "not found with graphchanged = " + graphChanged ); // DEBUG
+			
+			graph.releaseRef( start );
+			return false;
 		}
 
-		@Override
-		public boolean hasNext()
+		private TrackSchemeVertex next()
 		{
-			return true;
-		}
+			if ( !iterator.hasNext() )
+				iterator = graph.vertices().iterator();
 
-		@Override
-		public TrackSchemeVertex next()
-		{
-			if ( null == iterator || !iterator.hasNext() )
-			{
-				if ( null == trackIterator || !trackIterator.hasNext() )
-					trackIterator = graph.getRoots().iterator();
-
-				final TrackSchemeVertex root = trackIterator.next();
-				iterator = new DepthFirstIterator< TrackSchemeVertex, TrackSchemeEdge >( root, graph );
-			}
 			return iterator.next();
-		}
-
-		@Override
-		public void remove()
-		{
-			throw new UnsupportedOperationException();
 		}
 
 		@Override
@@ -237,19 +191,10 @@ public class TrackSchemeSearchField extends JTextField
 			reinit();
 		}
 
-		@SuppressWarnings( "unchecked" )
-		private void reinit()
+		private synchronized void reinit()
 		{
-			this.trackIterator = graph.getRoots().iterator();
-			if ( trackIterator.hasNext() )
-			{
-				final TrackSchemeVertex root = trackIterator.next();
-				iterator = new DepthFirstIterator< TrackSchemeVertex, TrackSchemeEdge >( root, graph );
-			}
-			else
-			{
-				iterator = Collections.EMPTY_LIST.iterator();
-			}
+			graphChanged = true;
+			iterator = graph.vertices().iterator();
 		}
 	}
 }
