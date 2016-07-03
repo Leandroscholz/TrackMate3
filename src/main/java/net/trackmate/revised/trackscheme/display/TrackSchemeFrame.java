@@ -96,6 +96,9 @@ public class TrackSchemeFrame extends JFrame
 
 		final ContextChooserPanel< ? > contextChooserPanel = new ContextChooserPanel<>( contextChooser );
 		settingsPanel.add( contextChooserPanel );
+		settingsPanel.add( Box.createHorizontalGlue() );
+		
+		settingsPanel.add( new TrackSchemeSearchField( graph ));
 
 		add( settingsPanel, BorderLayout.NORTH );
 		isSettingsPanelVisible = true;
