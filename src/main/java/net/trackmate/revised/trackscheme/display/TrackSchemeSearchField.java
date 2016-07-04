@@ -27,13 +27,13 @@ public class TrackSchemeSearchField extends JTextField
 
 	private static final String UNFOCUSED_TEXT = "Search...";
 
-	private static final ImageIcon FOCUSED_ICON = new ImageIcon( TrackSchemeSearchField.class.getResource( "find-24x24.png" ) );
+	private static final ImageIcon FOCUSED_ICON = new ImageIcon( TrackSchemeSearchField.class.getResource( "find-24x24-orange.png" ) );
 
 	private static final ImageIcon UNFOCUSED_ICON = new ImageIcon( TrackSchemeSearchField.class.getResource( "find-24x24.png" ) );
 
-	private static final ImageIcon FOUND_ICON = new ImageIcon( TrackSchemeSearchField.class.getResource( "find-24x24.png" ) );
+	private static final ImageIcon FOUND_ICON = new ImageIcon( TrackSchemeSearchField.class.getResource( "find-24x24-green.png" ) );
 
-	private static final ImageIcon NOT_FOUND_ICON = new ImageIcon( TrackSchemeSearchField.class.getResource( "find-24x24.png" ) );
+	private static final ImageIcon NOT_FOUND_ICON = new ImageIcon( TrackSchemeSearchField.class.getResource( "find-24x24-red.png" ) );
 
 	private final TrackSchemeGraph< ?, ? > graph;
 
@@ -84,6 +84,7 @@ public class TrackSchemeSearchField extends JTextField
 				setEnabled( false );
 				new Thread()
 				{
+					@Override
 					public void run()
 					{
 						try
