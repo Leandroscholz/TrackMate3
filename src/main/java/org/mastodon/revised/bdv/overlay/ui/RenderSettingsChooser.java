@@ -103,6 +103,7 @@ public class RenderSettingsChooser
 
 		final String newName = ( String ) JOptionPane.showInputDialog( panel, "Enter the render settings name:", "Style name", JOptionPane.PLAIN_MESSAGE, null, null, current.getName() );
 		current.setName( newName );
+		panel.repaint();
 	}
 
 	private void newStyle()
