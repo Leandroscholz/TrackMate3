@@ -33,9 +33,9 @@ import org.mastodon.revised.bdv.overlay.RenderSettings;
 import org.mastodon.revised.bdv.overlay.RenderSettings.UpdateListener;
 import org.mastodon.revised.model.feature.FeatureKeys;
 import org.mastodon.revised.model.feature.FeatureRangeCalculator;
-import org.mastodon.revised.ui.ColorMode.EdgeColorMode;
-import org.mastodon.revised.ui.ColorMode.VertexColorMode;
-import org.mastodon.revised.ui.ColorModePicker;
+import org.mastodon.revised.ui.coloring.ColorModePicker;
+import org.mastodon.revised.ui.coloring.ColorMode.EdgeColorMode;
+import org.mastodon.revised.ui.coloring.ColorMode.VertexColorMode;
 
 import bdv.tools.brightness.SliderPanel;
 import bdv.tools.brightness.SliderPanelDouble;

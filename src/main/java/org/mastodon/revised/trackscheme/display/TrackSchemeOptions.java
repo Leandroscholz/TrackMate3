@@ -34,8 +34,8 @@ import org.mastodon.revised.trackscheme.TrackSchemeVertex;
 import org.mastodon.revised.trackscheme.display.AbstractTrackSchemeOverlay.TrackSchemeOverlayFactory;
 import org.mastodon.revised.trackscheme.display.style.DefaultColorGenerator;
 import org.mastodon.revised.trackscheme.display.style.DefaultTrackSchemeOverlay;
-import org.mastodon.revised.ui.EdgeColorGenerator;
-import org.mastodon.revised.ui.VertexColorGenerator;
+import org.mastodon.revised.ui.coloring.EdgeColorGenerator;
+import org.mastodon.revised.ui.coloring.VertexColorGenerator;
 import org.mastodon.revised.ui.selection.NavigationEtiquette;
 import org.scijava.ui.behaviour.io.InputTriggerConfig;
 

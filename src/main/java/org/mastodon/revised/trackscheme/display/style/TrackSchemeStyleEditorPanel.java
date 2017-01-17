@@ -31,9 +31,9 @@ import javax.swing.border.EmptyBorder;
 import org.mastodon.revised.model.feature.FeatureKeys;
 import org.mastodon.revised.model.feature.FeatureRangeCalculator;
 import org.mastodon.revised.trackscheme.display.style.TrackSchemeStyle.UpdateListener;
-import org.mastodon.revised.ui.ColorMode.EdgeColorMode;
-import org.mastodon.revised.ui.ColorMode.VertexColorMode;
-import org.mastodon.revised.ui.ColorModePicker;
+import org.mastodon.revised.ui.coloring.ColorModePicker;
+import org.mastodon.revised.ui.coloring.ColorMode.EdgeColorMode;
+import org.mastodon.revised.ui.coloring.ColorMode.VertexColorMode;
 
 public class TrackSchemeStyleEditorPanel extends JPanel implements UpdateListener
 {

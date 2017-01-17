@@ -1,4 +1,4 @@
-package org.mastodon.revised.ui;
+package org.mastodon.revised.ui.coloring;
 
 import java.awt.Color;
 
@@ -8,8 +8,8 @@ import org.mastodon.graph.Vertex;
 import org.mastodon.graph.branch.BranchGraph;
 import org.mastodon.revised.model.feature.FeatureModel;
 import org.mastodon.revised.model.feature.FeatureProjection;
-import org.mastodon.revised.ui.ColorMode.EdgeColorMode;
-import org.mastodon.revised.ui.ColorMode.VertexColorMode;
+import org.mastodon.revised.ui.coloring.ColorMode.EdgeColorMode;
+import org.mastodon.revised.ui.coloring.ColorMode.VertexColorMode;
 import org.mastodon.revised.ui.util.ColorMap;
 
 /**

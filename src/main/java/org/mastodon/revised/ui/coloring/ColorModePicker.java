@@ -1,4 +1,4 @@
-package org.mastodon.revised.ui;
+package org.mastodon.revised.ui.coloring;
 
 import java.awt.Component;
 import java.awt.Container;
@@ -33,11 +33,17 @@ import javax.swing.SwingConstants;
 import org.mastodon.revised.model.feature.FeatureKeys;
 import org.mastodon.revised.model.feature.FeatureRangeCalculator;
 import org.mastodon.revised.model.feature.FeatureTarget;
-import org.mastodon.revised.ui.ColorMode.EdgeColorMode;
-import org.mastodon.revised.ui.ColorMode.VertexColorMode;
+import org.mastodon.revised.ui.coloring.ColorMode.EdgeColorMode;
+import org.mastodon.revised.ui.coloring.ColorMode.VertexColorMode;
 import org.mastodon.revised.ui.util.CategoryJComboBox;
 import org.mastodon.revised.ui.util.ColorMap;
 
+/**
+ * GUI element to configure a {@link ColorMode} implementation. TODO: Move to a
+ * sensible GUI package.
+ *
+ * @author Jean-Yves Tinevez.
+ */
 public class ColorModePicker extends JPanel
 {
 

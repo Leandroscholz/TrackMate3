@@ -5,7 +5,7 @@ import java.awt.event.ActionEvent;
 import org.mastodon.revised.trackscheme.display.style.DefaultTrackSchemeOverlay;
 import org.mastodon.revised.trackscheme.display.style.TrackSchemeStyle;
 import org.mastodon.revised.trackscheme.display.style.TrackSchemeStyle.UpdateListener;
-import org.mastodon.revised.ui.FeaturesColorGenerator;
+import org.mastodon.revised.ui.coloring.FeaturesColorGenerator;
 import org.scijava.ui.behaviour.util.AbstractNamedAction;
 
 /**

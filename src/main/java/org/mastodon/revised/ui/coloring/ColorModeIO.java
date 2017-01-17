@@ -1,4 +1,4 @@
-package org.mastodon.revised.ui;
+package org.mastodon.revised.ui.coloring;
 
 import java.util.List;
 import java.util.Map;
@@ -7,8 +7,8 @@ import org.mastodon.revised.io.yaml.AbstractWorkaroundConstruct;
 import org.mastodon.revised.io.yaml.WorkaroundConstructor;
 import org.mastodon.revised.io.yaml.WorkaroundRepresent;
 import org.mastodon.revised.io.yaml.WorkaroundRepresenter;
-import org.mastodon.revised.ui.ColorMode.EdgeColorMode;
-import org.mastodon.revised.ui.ColorMode.VertexColorMode;
+import org.mastodon.revised.ui.coloring.ColorMode.EdgeColorMode;
+import org.mastodon.revised.ui.coloring.ColorMode.VertexColorMode;
 import org.mastodon.revised.ui.util.ColorMap;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.ScalarNode;

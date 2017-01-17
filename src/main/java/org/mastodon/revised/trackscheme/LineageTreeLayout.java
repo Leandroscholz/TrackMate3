@@ -12,8 +12,8 @@ import org.mastodon.graph.Edges;
 import org.mastodon.revised.trackscheme.ScreenEdge.ScreenEdgePool;
 import org.mastodon.revised.trackscheme.ScreenVertex.ScreenVertexPool;
 import org.mastodon.revised.trackscheme.ScreenVertexRange.ScreenVertexRangePool;
-import org.mastodon.revised.ui.EdgeColorGenerator;
-import org.mastodon.revised.ui.VertexColorGenerator;
+import org.mastodon.revised.ui.coloring.EdgeColorGenerator;
+import org.mastodon.revised.ui.coloring.VertexColorGenerator;
 import org.mastodon.revised.ui.selection.Selection;
 
 import gnu.trove.iterator.TIntAlternatingIterator;

@@ -7,7 +7,7 @@ import java.awt.Stroke;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.mastodon.revised.ui.ColorMode;
+import org.mastodon.revised.ui.coloring.ColorMode;
 import org.mastodon.revised.ui.util.ColorMap;
 
 public class TrackSchemeStyle implements ColorMode

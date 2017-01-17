@@ -91,11 +91,11 @@ import org.mastodon.revised.trackscheme.display.style.TrackSchemeStyle.UpdateLis
 import org.mastodon.revised.trackscheme.display.style.TrackSchemeStyleManager;
 import org.mastodon.revised.trackscheme.wrap.DefaultModelGraphProperties;
 import org.mastodon.revised.trackscheme.wrap.ModelGraphProperties;
-import org.mastodon.revised.ui.BranchGraphFeaturesColorGenerator;
-import org.mastodon.revised.ui.FeaturesColorGenerator;
-import org.mastodon.revised.ui.FeaturesColorGeneratorBranchFeatures;
 import org.mastodon.revised.ui.HighlightBehaviours;
 import org.mastodon.revised.ui.SelectionActions;
+import org.mastodon.revised.ui.coloring.BranchGraphFeaturesColorGenerator;
+import org.mastodon.revised.ui.coloring.FeaturesColorGenerator;
+import org.mastodon.revised.ui.coloring.FeaturesColorGeneratorBranchFeatures;
 import org.mastodon.revised.ui.grouping.GroupHandle;
 import org.mastodon.revised.ui.grouping.GroupManager;
 import org.mastodon.revised.ui.selection.FocusListener;

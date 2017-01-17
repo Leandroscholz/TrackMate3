@@ -5,8 +5,8 @@ import java.awt.Color;
 import org.mastodon.revised.trackscheme.TrackSchemeEdge;
 import org.mastodon.revised.trackscheme.TrackSchemeGraph;
 import org.mastodon.revised.trackscheme.TrackSchemeVertex;
-import org.mastodon.revised.ui.EdgeColorGenerator;
-import org.mastodon.revised.ui.VertexColorGenerator;
+import org.mastodon.revised.ui.coloring.EdgeColorGenerator;
+import org.mastodon.revised.ui.coloring.VertexColorGenerator;
 import org.mastodon.revised.ui.util.ColorMap;
 
 public class DummyLayoutColorGenerator implements VertexColorGenerator< TrackSchemeVertex >, EdgeColorGenerator< TrackSchemeEdge >

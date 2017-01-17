@@ -1,4 +1,4 @@
-package org.mastodon.revised.ui;
+package org.mastodon.revised.ui.coloring;
 
 import org.mastodon.graph.Edge;
 import org.mastodon.graph.ReadOnlyGraph;
@@ -6,8 +6,8 @@ import org.mastodon.graph.Vertex;
 import org.mastodon.revised.model.feature.FeatureModel;
 import org.mastodon.revised.model.feature.FeatureProjection;
 import org.mastodon.revised.trackscheme.display.style.TrackSchemeStyle;
-import org.mastodon.revised.ui.ColorMode.EdgeColorMode;
-import org.mastodon.revised.ui.ColorMode.VertexColorMode;
+import org.mastodon.revised.ui.coloring.ColorMode.EdgeColorMode;
+import org.mastodon.revised.ui.coloring.ColorMode.VertexColorMode;
 
 /**
  * A color generator for a branch graph based on a {@link TrackSchemeStyle} with
