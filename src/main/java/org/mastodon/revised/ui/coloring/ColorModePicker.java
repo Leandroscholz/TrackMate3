@@ -39,8 +39,7 @@ import org.mastodon.revised.ui.util.CategoryJComboBox;
 import org.mastodon.revised.ui.util.ColorMap;
 
 /**
- * GUI element to configure a {@link ColorMode} implementation. TODO: Move to a
- * sensible GUI package.
+ * GUI element to configure a {@link ColorMode} implementation.
  *
  * @author Jean-Yves Tinevez.
  */
@@ -149,7 +148,9 @@ public class ColorModePicker extends JPanel
 		c.gridx++;
 		c.weightx = 1.;
 		c.gridwidth = 3;
-		colorVertexChoices = vertexColorBy( featureKeys, branchGraphFeatureKeys );
+		colorVertexChoices = new CategoryJComboBox<>();
+		colorVertexChoices.setEditable( false );
+		updateVertexColorModes( colorVertexChoices, featureKeys, branchGraphFeatureKeys );
 		add( colorVertexChoices, c );
 
 		// Colormap and ranges.
@@ -273,7 +274,9 @@ public class ColorModePicker extends JPanel
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1.;
 		c.gridwidth = 3;
-		colorEdgeChoices = edgeColorBy( featureKeys, branchGraphFeatureKeys );
+		colorEdgeChoices = new CategoryJComboBox<>();
+		colorEdgeChoices.setEditable( false );
+		updateEdgeColorModes( colorEdgeChoices, featureKeys, branchGraphFeatureKeys );
 		add( colorEdgeChoices, c );
 
 		// Colormap and ranges.
@@ -385,6 +388,8 @@ public class ColorModePicker extends JPanel
 
 	public void update()
 	{
+		// TODO update vertex and edge color modes combo boxes
+
 		colorVertexChoices.setSelectedItem( new FeatureKeyWrapper( current.getVertexFeatureKey(), current.getVertexColorMode() ) );
 		colorEdgeChoices.setSelectedItem( new FeatureKeyWrapper( current.getEdgeFeatureKey(), current.getEdgeColorMode() ) );
 		cmapVertex.setSelectedItem( current.getVertexColorMap().getName() );
@@ -461,7 +466,8 @@ public class ColorModePicker extends JPanel
 		}
 	}
 
-	private static CategoryJComboBox< VertexColorMode, FeatureKeyWrapper > vertexColorBy(
+	private static void updateVertexColorModes(
+			final CategoryJComboBox< VertexColorMode, FeatureKeyWrapper > comboBox,
 			final FeatureKeys featureKeys,
 			final FeatureKeys branchGraphFeatureKeys )
 	{
@@ -523,14 +529,11 @@ public class ColorModePicker extends JPanel
 			categoryNames.put( VertexColorMode.BRANCH_EDGE, "Branch edge" );
 		}
 
-		final Map< FeatureKeyWrapper, String > itemNames = null;
-		final CategoryJComboBox< VertexColorMode, FeatureKeyWrapper > comboBox =
-				new CategoryJComboBox<>( items, itemNames, categoryNames );
-		comboBox.setEditable( false );
-		return comboBox;
+		comboBox.resetContent( items, null, categoryNames );
 	}
 
-	private static CategoryJComboBox< EdgeColorMode, FeatureKeyWrapper > edgeColorBy(
+	private static void updateEdgeColorModes(
+			final CategoryJComboBox< EdgeColorMode, FeatureKeyWrapper > comboBox,
 			final FeatureKeys featureKeys,
 			final FeatureKeys branchGraphFeatureKeys )
 	{
@@ -591,11 +594,7 @@ public class ColorModePicker extends JPanel
 			categoryNames.put( EdgeColorMode.BRANCH_VERTEX, "Branch vertex" );
 		}
 
-		final Map< FeatureKeyWrapper, String > itemNames = null;
-		final CategoryJComboBox< EdgeColorMode, FeatureKeyWrapper > comboBox =
-				new CategoryJComboBox<>( items, itemNames, categoryNames );
-		comboBox.setEditable( false );
-		return comboBox;
+		comboBox.resetContent( items, null, categoryNames );
 	}
 
 	private static final class FeatureKeyWrapper
