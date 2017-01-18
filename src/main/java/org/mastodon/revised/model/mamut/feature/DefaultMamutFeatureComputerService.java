@@ -15,6 +15,7 @@ import org.mastodon.graph.object.ObjectVertex;
 import org.mastodon.revised.model.feature.FeatureComputer;
 import org.mastodon.revised.model.feature.FeatureComputerService;
 import org.mastodon.revised.model.mamut.Model;
+import org.mastodon.revised.ui.ProgressListener;
 import org.scijava.InstantiableException;
 import org.scijava.log.LogService;
 import org.scijava.plugin.Parameter;
@@ -91,23 +92,31 @@ public class DefaultMamutFeatureComputerService extends AbstractService implemen
 	}
 
 	@Override
-	public boolean compute( final Model model, final Set< String > computerNames )
+	public boolean compute( final Model model, final Set< String > computerNames, final ProgressListener progressWriter )
 	{
 		final ObjectGraph< FeatureComputer< ?, ?, Model > > dependencyGraph = getDependencyGraph( computerNames );
 		final TopologicalSort< ObjectVertex< FeatureComputer< ?, ?, Model > >, ObjectEdge< FeatureComputer< ?, ?, Model > > > sorter
 			= new TopologicalSort<>( dependencyGraph );
 
+		if ( null != progressWriter )
+			progressWriter.setProgress( 0. );
 		if (sorter.hasFailed())
 		{
 			logService.error( "Could computer features using  " + computerNames +
 					" as they have a circular dependency." );
+			if ( null != progressWriter )
+				progressWriter.err( "Circular dependency!" );
 			return false;
 		}
 
+		final long start = System.currentTimeMillis();
+
 		model.getGraphFeatureModel().clear();
 		model.getBranchGraphFeatureModel().clear();
+		int progress = 1;
 		for ( final ObjectVertex< FeatureComputer< ?, ?, Model > > v : sorter.get() )
 		{
+			progressWriter.out( v.getContent().getFeature().getKey() );
 			final FeatureComputer< ?, ?, Model > computer = v.getContent();
 			computer.compute( model );
 			// We have to declare feature to the right graph.
@@ -115,7 +124,15 @@ public class DefaultMamutFeatureComputerService extends AbstractService implemen
 				model.getBranchGraphFeatureModel().declareFeature( computer );
 			else
 				model.getGraphFeatureModel().declareFeature( computer );
+
+			if ( null != progressWriter )
+				progressWriter.setProgress( ( double ) progress++ / computerNames.size() );
+
 		}
+		
+		final long end = System.currentTimeMillis();
+		progressWriter.setProgress( 0. );
+		progressWriter.out( String.format( "Done in %.1f s.", ( end - start ) / 1000. ) );
 
 		return true;
 	}
