@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -84,6 +85,14 @@ public class CategoryJComboBox< K, V > extends JComboBox< Object >
 
 	public void resetContent( final Map< K, Collection< V > > items, final Map< V, String > itemNames, final Map< K, String > categoryNames )
 	{
+		// HACK to prevent firing events when we change combo box content.
+		final ActionListener[] actionListeners = getActionListeners();
+		for ( final ActionListener listener : actionListeners )
+			removeActionListener( listener );
+		final ItemListener[] itemListeners = getItemListeners();
+		for ( final ItemListener listener : itemListeners )
+			removeItemListener( listener );
+
 		removeAllItems();
 		this.invertMap.clear();
 		this.itemNames.clear();
@@ -104,6 +113,11 @@ public class CategoryJComboBox< K, V > extends JComboBox< Object >
 				invertMap.put( item, category );
 			}
 		}
+
+		for ( final ItemListener listener : itemListeners )
+			addItemListener( listener );
+		for ( final ActionListener listener : actionListeners )
+			addActionListener( listener );
 	}
 
 	/*
