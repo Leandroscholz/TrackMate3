@@ -45,12 +45,16 @@ public class FeatureModelAdapter< V extends Vertex< E >, E extends Edge< V >, WV
 	@Override
 	public FeatureProjection< WE > getEdgeProjection( final String projectionKey )
 	{
+		if ( null == featureModel.getEdgeProjection( projectionKey ) )
+			return null;
 		return new FeatureProjectionAdapter< E, WE >( featureModel.getEdgeProjection( projectionKey ), edgeMap );
 	}
 
 	@Override
 	public FeatureProjection< WV > getVertexProjection( final String projectionKey )
 	{
+		if ( null == featureModel.getVertexProjection( projectionKey ) )
+			return null;
 		return new FeatureProjectionAdapter< V, WV >( featureModel.getVertexProjection( projectionKey ), vertexMap );
 	}
 

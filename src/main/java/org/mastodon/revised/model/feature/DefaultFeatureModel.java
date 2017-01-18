@@ -128,6 +128,8 @@ public class DefaultFeatureModel< V extends Vertex< E >, E extends Edge< V > > i
 	@Override
 	public FeatureProjection< E > getEdgeProjection( final String projectionKey )
 	{
+		if ( null == projections.get( FeatureTarget.EDGE ) )
+			return null;
 		return ( FeatureProjection< E > ) projections.get( FeatureTarget.EDGE ).get( projectionKey );
 	}
 
@@ -135,6 +137,8 @@ public class DefaultFeatureModel< V extends Vertex< E >, E extends Edge< V > > i
 	@Override
 	public FeatureProjection< V > getVertexProjection( final String projectionKey )
 	{
+		if ( null == projections.get( FeatureTarget.VERTEX ) )
+			return null;
 		return ( FeatureProjection< V > ) projections.get( FeatureTarget.VERTEX ).get( projectionKey );
 	}
 }

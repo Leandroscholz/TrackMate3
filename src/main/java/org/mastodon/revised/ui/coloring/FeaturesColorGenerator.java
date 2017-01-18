@@ -69,19 +69,28 @@ public class FeaturesColorGenerator< V extends Vertex< E >, E extends Edge< V > 
 		case INCOMING_EDGE:
 		{
 			final FeatureProjection< E > vfp = features.getEdgeProjection( colorMode.getVertexFeatureKey() );
-			vertexColorGenerator = new IncomingEdgeVertexColorGenerator( vfp, colorMode.getVertexColorMap(), colorMode.getMinVertexColorRange(), colorMode.getMaxVertexColorRange() );
+			if ( null == vfp )
+				vertexColorGenerator = new FixedVertexColorGenerator( colorMode.getVertexColorMap().getMissingColor() );
+			else
+				vertexColorGenerator = new IncomingEdgeVertexColorGenerator( vfp, colorMode.getVertexColorMap(), colorMode.getMinVertexColorRange(), colorMode.getMaxVertexColorRange() );
 			break;
 		}
 		case OUTGOING_EDGE:
 		{
 			final FeatureProjection< E > vfp = features.getEdgeProjection( colorMode.getVertexFeatureKey() );
-			vertexColorGenerator = new OutgoingEdgeVertexColorGenerator( vfp, colorMode.getVertexColorMap(), colorMode.getMinVertexColorRange(), colorMode.getMaxVertexColorRange() );
+			if ( null == vfp )
+				vertexColorGenerator = new FixedVertexColorGenerator( colorMode.getVertexColorMap().getMissingColor() );
+			else
+				vertexColorGenerator = new OutgoingEdgeVertexColorGenerator( vfp, colorMode.getVertexColorMap(), colorMode.getMinVertexColorRange(), colorMode.getMaxVertexColorRange() );
 			break;
 		}
 		case VERTEX:
 		{
 			final FeatureProjection< V > vfp = features.getVertexProjection( colorMode.getVertexFeatureKey() );
-			vertexColorGenerator = new ThisVertexColorGenerator( vfp, colorMode.getVertexColorMap(), colorMode.getMinVertexColorRange(), colorMode.getMaxVertexColorRange() );
+			if ( null == vfp )
+				vertexColorGenerator = new FixedVertexColorGenerator( colorMode.getVertexColorMap().getMissingColor() );
+			else
+				vertexColorGenerator = new ThisVertexColorGenerator( vfp, colorMode.getVertexColorMap(), colorMode.getMinVertexColorRange(), colorMode.getMaxVertexColorRange() );
 			break;
 		}
 		}
@@ -97,19 +106,28 @@ public class FeaturesColorGenerator< V extends Vertex< E >, E extends Edge< V > 
 		case EDGE:
 		{
 			final FeatureProjection< E > efp = features.getEdgeProjection( colorMode.getEdgeFeatureKey() );
-			edgeColorGenerator = new ThisEdgeColorGenerator( efp, colorMode.getEdgeColorMap(), colorMode.getMinEdgeColorRange(), colorMode.getMaxEdgeColorRange() );
+			if ( null == efp )
+				edgeColorGenerator = new FixedEdgeColorGenerator( colorMode.getEdgeColorMap().getMissingColor() );
+			else
+				edgeColorGenerator = new ThisEdgeColorGenerator( efp, colorMode.getEdgeColorMap(), colorMode.getMinEdgeColorRange(), colorMode.getMaxEdgeColorRange() );
 			break;
 		}
 		case SOURCE_VERTEX:
 		{
 			final FeatureProjection< V > efp = features.getVertexProjection( colorMode.getEdgeFeatureKey() );
-			edgeColorGenerator = new SourceVertexEdgeColorGenerator( efp, colorMode.getEdgeColorMap(), colorMode.getMinEdgeColorRange(), colorMode.getMaxEdgeColorRange() );
+			if ( null == efp )
+				edgeColorGenerator = new FixedEdgeColorGenerator( colorMode.getEdgeColorMap().getMissingColor() );
+			else
+				edgeColorGenerator = new SourceVertexEdgeColorGenerator( efp, colorMode.getEdgeColorMap(), colorMode.getMinEdgeColorRange(), colorMode.getMaxEdgeColorRange() );
 			break;
 		}
 		case TARGET_VERTEX:
 		{
 			final FeatureProjection< V > efp = features.getVertexProjection( colorMode.getEdgeFeatureKey() );
-			edgeColorGenerator = new TargetVertexEdgeColorGenerator( efp, colorMode.getEdgeColorMap(), colorMode.getMinEdgeColorRange(), colorMode.getMaxEdgeColorRange() );
+			if ( null == efp )
+				edgeColorGenerator = new FixedEdgeColorGenerator( colorMode.getEdgeColorMap().getMissingColor() );
+			else
+				edgeColorGenerator = new TargetVertexEdgeColorGenerator( efp, colorMode.getEdgeColorMap(), colorMode.getMinEdgeColorRange(), colorMode.getMaxEdgeColorRange() );
 			break;
 		}
 		}
@@ -137,7 +155,7 @@ public class FeaturesColorGenerator< V extends Vertex< E >, E extends Edge< V > 
 	 * Colorer classes.
 	 */
 
-	private class FixedVertexColorGenerator implements VertexColorGenerator< V >
+	protected class FixedVertexColorGenerator implements VertexColorGenerator< V >
 	{
 
 		private final Color color;
@@ -266,7 +284,7 @@ public class FeaturesColorGenerator< V extends Vertex< E >, E extends Edge< V > 
 		}
 	}
 
-	private class FixedEdgeColorGenerator implements EdgeColorGenerator< E >
+	protected class FixedEdgeColorGenerator implements EdgeColorGenerator< E >
 	{
 
 		private final Color color;
