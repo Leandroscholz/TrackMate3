@@ -2,6 +2,7 @@ package org.mastodon.revised.mamut;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Dialog;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,6 +12,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
@@ -21,8 +23,10 @@ import org.mastodon.revised.bdv.overlay.ui.RenderSettingsManager;
 import org.mastodon.revised.model.feature.DefaultFeatureRangeCalculator;
 import org.mastodon.revised.model.feature.FeatureRangeCalculator;
 import org.mastodon.revised.model.mamut.Model;
+import org.mastodon.revised.model.mamut.feature.DefaultMamutFeatureComputerService;
 import org.mastodon.revised.trackscheme.display.style.TrackSchemeStyleManager;
 import org.mastodon.revised.ui.DisplaySettingsDialog;
+import org.mastodon.revised.ui.features.FeatureComputersPanel;
 import org.mastodon.revised.ui.util.FileChooser;
 import org.mastodon.revised.ui.util.XmlFileFilter;
 import org.scijava.ui.behaviour.io.InputTriggerConfig;
@@ -53,6 +57,8 @@ public class MainWindow extends JFrame
 
 	private final JButton displaySettingsButton;
 
+	private final JButton featureComputationButton;
+
 	public MainWindow( final InputTriggerConfig keyconf )
 	{
 		super( "test" );
@@ -63,7 +69,7 @@ public class MainWindow extends JFrame
 		this.trackSchemeStyleManager = new TrackSchemeStyleManager();
 
 		final JPanel buttonsPanel = new JPanel();
-		buttonsPanel.setLayout( new GridLayout( 11, 1 ) );
+		buttonsPanel.setLayout( new GridLayout( 12, 1 ) );
 		final JButton bdvButton = new JButton( "bdv" );
 		bdvButton.addActionListener( new ActionListener()
 		{
@@ -109,6 +115,9 @@ public class MainWindow extends JFrame
 		buttonsPanel.add( branchBDVButton );
 		buttonsPanel.add( branchTrackSchemeButton );
 		buttonsPanel.add( Box.createVerticalStrut( 20 ) );
+
+		this.featureComputationButton = new JButton( "feature computation" );
+		buttonsPanel.add( featureComputationButton );
 
 		this.displaySettingsButton = new JButton( "display settings" );
 		buttonsPanel.add( displaySettingsButton );
@@ -220,6 +229,14 @@ public class MainWindow extends JFrame
 
 		displaySettingsButton.addActionListener(
 				new ToggleDialogAction( "display settings", displaySettingsDialog ) );
+
+		final Dialog featureComputationDialog = new JDialog( this );
+		final DefaultMamutFeatureComputerService featureComputerService = new DefaultMamutFeatureComputerService();
+		windowManager.context.inject( featureComputerService );
+		featureComputerService.initialize();
+		featureComputationDialog.add( new FeatureComputersPanel( featureComputerService, model ) );
+		featureComputationDialog.setSize( 400, 400 );
+		featureComputationButton.addActionListener( new ToggleDialogAction( "feature computation", featureComputationDialog ) );
 	}
 
 	public void saveProject( final File projectFile ) throws IOException

@@ -6,9 +6,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -68,7 +66,6 @@ import org.mastodon.revised.model.mamut.Spot;
 import org.mastodon.revised.model.mamut.branchgraph.BranchEdge;
 import org.mastodon.revised.model.mamut.branchgraph.BranchVertex;
 import org.mastodon.revised.model.mamut.branchgraph.ModelBranchGraph;
-import org.mastodon.revised.model.mamut.feature.DefaultMamutFeatureComputerService;
 import org.mastodon.revised.trackscheme.TrackSchemeContextListener;
 import org.mastodon.revised.trackscheme.TrackSchemeEdge;
 import org.mastodon.revised.trackscheme.TrackSchemeEdgeBimap;
@@ -306,7 +303,7 @@ public class WindowManager
 
 	private final TrackSchemeStyleManager trackSchemeStyleManager;
 
-	private final org.scijava.Context context;
+	final org.scijava.Context context;
 
 	private final TrackSchemeBehaviourProvider trackSchemeBehaviourProvider;
 
@@ -361,19 +358,6 @@ public class WindowManager
 		context.inject( trackSchemeBehaviourProvider );
 		this.trackSchemeActionProvider = new TrackSchemeActionProvider();
 		context.inject( trackSchemeActionProvider );
-		{
-			// TODO
-			final DefaultMamutFeatureComputerService featureComputerService = new DefaultMamutFeatureComputerService();
-			context.inject( featureComputerService );
-			featureComputerService.initialize();
-			final Set< String > features = new HashSet<>();
-			features.addAll( featureComputerService.getAvailableEdgeFeatureComputers() );
-			features.addAll( featureComputerService.getAvailableVertexFeatureComputers() );
-			features.addAll( featureComputerService.getAvailableBranchVertexFeatureComputers() );
-			features.addAll( featureComputerService.getAvailableBranchEdgeFeatureComputers() );
-			featureComputerService.compute( model, features );
-		}
-
 	}
 
 	private synchronized void addBdvWindow( final BdvWindow w )
