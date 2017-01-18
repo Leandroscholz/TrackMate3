@@ -63,15 +63,36 @@ public class CategoryJComboBox< K, V > extends JComboBox< Object >
 	 * CONSTRUCTOR
 	 */
 
-	public CategoryJComboBox( final Map< K, Collection< V > > items, final Map< V, String > itemNames, final Map< K, String > categoryNames )
+	public CategoryJComboBox()
 	{
 		super();
 		this.invertMap = new HashMap<>();
-		this.itemNames = itemNames;
-		this.categoryNames = categoryNames;
+		this.itemNames = new HashMap<>();
+		this.categoryNames = new HashMap<>();
 		init();
+	}
 
+	public CategoryJComboBox( final Map< K, Collection< V > > items, final Map< V, String > itemNames, final Map< K, String > categoryNames )
+	{
+		this();
 		// Feed the combo box
+		resetContent( items, itemNames, categoryNames );
+
+		if ( null != items && items.size() > 0 )
+			setSelectedIndex( 1 );
+	}
+
+	public void resetContent( final Map< K, Collection< V > > items, final Map< V, String > itemNames, final Map< K, String > categoryNames )
+	{
+		removeAllItems();
+		this.invertMap.clear();
+		this.itemNames.clear();
+		this.categoryNames.clear();
+
+		this.categoryNames.putAll( categoryNames );
+		if ( null != itemNames )
+			this.itemNames.putAll( itemNames );
+
 		for ( final K category : items.keySet() )
 		{
 			addItem( category, true );
@@ -82,10 +103,6 @@ public class CategoryJComboBox< K, V > extends JComboBox< Object >
 				addItem( item, false );
 				invertMap.put( item, category );
 			}
-		}
-		if ( null != items && items.size() > 0 )
-		{
-			setSelectedIndex( 1 );
 		}
 	}
 
@@ -179,7 +196,7 @@ public class CategoryJComboBox< K, V > extends JComboBox< Object >
 					c = ( JLabel ) r.getListCellRendererComponent( list, value, index, isSelected, cellHasFocus );
 					c.setEnabled( true );
 					c.setFont( getFont().deriveFont( Font.PLAIN ) );
-					c.setText( INDENT + ( itemNames == null ? value.toString() : itemNames.get( value ) ) );
+					c.setText( INDENT + ( ( itemNames == null || itemNames.isEmpty() ) ? value.toString() : itemNames.get( value ) ) );
 				}
 				return c;
 			}
