@@ -1,10 +1,22 @@
 package org.mastodon.revised.ui.features;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.lang.reflect.InvocationTargetException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
@@ -21,15 +33,18 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 
+import org.mastodon.graph.GraphChangeListener;
 import org.mastodon.revised.model.feature.FeatureComputerService;
 import org.mastodon.revised.model.mamut.Model;
 import org.mastodon.revised.model.mamut.feature.DefaultMamutFeatureComputerService;
+import org.mastodon.revised.ui.ProgressListener;
 import org.scijava.Context;
-
 
 public class FeatureComputersPanel extends JPanel
 {
@@ -39,18 +54,44 @@ public class FeatureComputersPanel extends JPanel
 
 	private static final ImageIcon HELP_ICON = new ImageIcon( FeatureComputersPanel.class.getResource( "help.png" ) );
 
-	public FeatureComputersPanel( final FeatureComputerService< Model > computerService )
+	private static final ImageIcon GO_ICON = new ImageIcon( FeatureComputersPanel.class.getResource( "bullet_green.png" ) );
+
+	private static final ImageIcon CANCEL_ICON = new ImageIcon( FeatureComputersPanel.class.getResource( "cancel.png" ) );
+
+	private static final DateFormat DATE_FORMAT = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
+
+	private final FeatureComputerService< Model > computerService;
+
+	private final Model model;
+
+	private final MyProgressBar progressBar;
+
+	private final Set< String > selectedFeatures;
+
+	private final JButton btnCompute;
+
+	private final JLabel lblComputationDate;
+
+	private FeatureComputerWorker worker;
+
+	public FeatureComputersPanel( final FeatureComputerService< Model > computerService, final Model model )
 	{
+		this.computerService = computerService;
+		this.model = model;
+		this.selectedFeatures = new HashSet<>();
+
 		setLayout( new BorderLayout( 0, 0 ) );
 
 		final JPanel panelComputation = new JPanel();
 		add( panelComputation, BorderLayout.SOUTH );
 
-		final JButton btnCompute = new JButton( "Compute" );
+		btnCompute = new JButton( "Compute", GO_ICON );
 
-		final JProgressBar progressBar = new JProgressBar();
+		progressBar = new MyProgressBar();
+		progressBar.setStringPainted( true );
 
-		final JLabel lblComputationDate = new JLabel( "Last feature computation: Never." );
+		lblComputationDate = new JLabel( "Last feature computation: Never." );
+		final JLabel lblModelModificationDate = new JLabel( "Model last modified: Unknown." );
 		final GroupLayout gl_panelComputation = new GroupLayout( panelComputation );
 		gl_panelComputation.setHorizontalGroup(
 				gl_panelComputation.createParallelGroup( Alignment.LEADING )
@@ -61,7 +102,8 @@ public class FeatureComputersPanel extends JPanel
 												.addComponent( btnCompute )
 												.addPreferredGap( ComponentPlacement.RELATED )
 												.addComponent( progressBar, GroupLayout.DEFAULT_SIZE, 349, Short.MAX_VALUE ) )
-										.addComponent( lblComputationDate, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE ) )
+										.addComponent( lblComputationDate, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE )
+										.addComponent( lblModelModificationDate, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE ) )
 								.addContainerGap() ) );
 		gl_panelComputation.setVerticalGroup(
 				gl_panelComputation.createParallelGroup( Alignment.LEADING )
@@ -72,6 +114,7 @@ public class FeatureComputersPanel extends JPanel
 										.addComponent( btnCompute, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE ) )
 								.addPreferredGap( ComponentPlacement.UNRELATED )
 								.addComponent( lblComputationDate )
+								.addComponent( lblModelModificationDate )
 								.addContainerGap( GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE ) ) );
 		panelComputation.setLayout( gl_panelComputation );
 
@@ -104,10 +147,6 @@ public class FeatureComputersPanel extends JPanel
 		panelFeatures.setBorder( null );
 		scrollPane.setViewportView( panelFeatures );
 		final GridBagLayout gbl = new GridBagLayout();
-//		c.columnWidths = new int[] { 0 };
-//		c.rowHeights = new int[] { 0 };
-//		c.columnWeights = new double[] { Double.MIN_VALUE };
-//		c.rowWeights = new double[] { Double.MIN_VALUE };
 		panelFeatures.setLayout( gbl );
 		final GridBagConstraints c = new GridBagConstraints();
 		c.insets = new Insets( 0, 5, 0, 5 );
@@ -120,6 +159,70 @@ public class FeatureComputersPanel extends JPanel
 		layoutComputers( panelFeatures, c, "Edge features:", computerService.getAvailableEdgeFeatureComputers() );
 		layoutComputers( panelFeatures, c, "Branch vertex features:", computerService.getAvailableBranchVertexFeatureComputers() );
 		layoutComputers( panelFeatures, c, "Branch edge features:", computerService.getAvailableBranchEdgeFeatureComputers() );
+
+		// Wire listener to compute button.
+		btnCompute.addActionListener( ( e ) -> compute() );
+
+		// Wire listener to graph.
+		model.getGraph().addGraphChangeListener( new GraphChangeListener()
+		{
+
+			@Override
+			public void graphChanged()
+			{
+				lblModelModificationDate.setText( "Model last modified: " + now() );
+			}
+		} );
+	}
+
+	private synchronized void compute()
+	{
+		enableComponents( this, false );
+
+		if ( worker == null )
+		{
+			progressBar.setEnabled( true );
+			btnCompute.setText( "Cancel" );
+			btnCompute.setIcon( CANCEL_ICON );
+			btnCompute.setEnabled( true );
+
+			worker = new FeatureComputerWorker();
+			worker.addPropertyChangeListener( new PropertyChangeListener()
+			{
+
+				@Override
+				public void propertyChange( final PropertyChangeEvent evt )
+				{
+					if ( null == worker )
+						return;
+
+					if ( worker.isDone() && !worker.isCancelled() )
+					{
+						enableComponents( FeatureComputersPanel.this, true );
+						lblComputationDate.setText( "Last feature computation: " + now() );
+						worker = null;
+						btnCompute.setText( "Compute" );
+						btnCompute.setIcon( GO_ICON );
+					}
+				}
+			} );
+			worker.execute();
+		}
+		else
+		{
+			worker.cancel( true );
+			progressBar.setProgress( 0. );
+			progressBar.setString( "Canceled." );
+			enableComponents( FeatureComputersPanel.this, true );
+			worker = null;
+			btnCompute.setText( "Compute" );
+			btnCompute.setIcon( GO_ICON );
+		}
+	}
+
+	private static final String now()
+	{
+		return DATE_FORMAT.format( Calendar.getInstance().getTime() );
 	}
 
 	private void layoutComputers( final JPanel panel, final GridBagConstraints c, final String title, final Set< String > computers )
@@ -136,6 +239,17 @@ public class FeatureComputersPanel extends JPanel
 		{
 			final boolean selected = false;
 			final JCheckBox checkBox = new JCheckBox( computer, selected );
+			checkBox.addActionListener( new ActionListener()
+			{
+				@Override
+				public void actionPerformed( final ActionEvent e )
+				{
+					if ( checkBox.isSelected() )
+						selectedFeatures.add( computer );
+					else
+						selectedFeatures.remove( computer );
+				}
+			} );
 			c.gridy++;
 			c.gridx = 0;
 			c.weightx = 1.;
@@ -164,7 +278,63 @@ public class FeatureComputersPanel extends JPanel
 		c.gridy++;
 	}
 
-	public static void main( final String[] args ) throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException
+	private class FeatureComputerWorker extends SwingWorker< Boolean, String >
+	{
+
+		@Override
+		protected Boolean doInBackground() throws Exception
+		{
+			final boolean ok = computerService.compute( model, selectedFeatures, progressBar );
+			return Boolean.valueOf( ok );
+		}
+	}
+	
+	private class MyProgressBar extends JProgressBar implements ProgressListener
+	{
+
+		private static final long serialVersionUID = 1L;
+
+		public MyProgressBar()
+		{
+			super();
+			setStringPainted( true );
+		}
+
+		@Override
+		public void setProgress( final double completionRatio )
+		{
+			setValue( ( int ) ( 100 * completionRatio ) );
+		}
+
+		@Override
+		public void out( final String msg )
+		{
+			setString( msg );
+		}
+
+		@Override
+		public void err( final String msg )
+		{
+			setForeground( Color.RED.darker() );
+			setString( msg );
+			setForeground( Color.BLACK );
+		}
+	}
+
+	private static final void enableComponents( final Container container, final boolean enable )
+	{
+		final Component[] components = container.getComponents();
+		for ( final Component component : components )
+		{
+			component.setEnabled( enable );
+			if ( component instanceof Container )
+			{
+				enableComponents( ( Container ) component, enable );
+			}
+		}
+	}
+
+	public static void main( final String[] args ) throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, InvocationTargetException, InterruptedException
 	{
 		UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
 		Locale.setDefault( Locale.US );
@@ -174,11 +344,19 @@ public class FeatureComputersPanel extends JPanel
 		context.inject( featureComputerService );
 		featureComputerService.initialize();
 
-		final JFrame frame = new JFrame( "Test" );
-		final FeatureComputersPanel panel = new FeatureComputersPanel( featureComputerService );
-		frame.getContentPane().add( panel );
-		frame.setSize( 300, 400 );
-		frame.setDefaultCloseOperation( WindowConstants.EXIT_ON_CLOSE );
-		frame.setVisible( true );
+		SwingUtilities.invokeLater( new Runnable()
+		{
+			@Override
+			public void run()
+			{
+
+				final JFrame frame = new JFrame( "Test" );
+				final FeatureComputersPanel panel = new FeatureComputersPanel( featureComputerService, new Model() );
+				frame.getContentPane().add( panel );
+				frame.setSize( 400, 400 );
+				frame.setDefaultCloseOperation( WindowConstants.EXIT_ON_CLOSE );
+				frame.setVisible( true );
+			}
+		} );
 	}
 }
