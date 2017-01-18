@@ -80,6 +80,10 @@ public class ColorModePicker extends JPanel
 
 	private final ColorMode current;
 
+	private final FeatureKeys featureKeys;
+
+	private final FeatureKeys branchGraphFeatureKeys;
+
 	public ColorModePicker( final ColorMode current,
 			final FeatureKeys featureKeys,
 			final FeatureRangeCalculator featureRangeCalculator,
@@ -88,7 +92,9 @@ public class ColorModePicker extends JPanel
 	{
 		super( new GridBagLayout() );
 		this.current = current;
+		this.featureKeys = featureKeys;
 		this.featureRangeCalculator = featureRangeCalculator;
+		this.branchGraphFeatureKeys = branchGraphFeatureKeys;
 		this.branchGraphFeatureRangeCalculator = branchGraphFeatureRangeCalculator;
 
 		/*
@@ -150,7 +156,6 @@ public class ColorModePicker extends JPanel
 		c.gridwidth = 3;
 		colorVertexChoices = new CategoryJComboBox<>();
 		colorVertexChoices.setEditable( false );
-		updateVertexColorModes( colorVertexChoices, featureKeys, branchGraphFeatureKeys );
 		add( colorVertexChoices, c );
 
 		// Colormap and ranges.
@@ -276,7 +281,6 @@ public class ColorModePicker extends JPanel
 		c.gridwidth = 3;
 		colorEdgeChoices = new CategoryJComboBox<>();
 		colorEdgeChoices.setEditable( false );
-		updateEdgeColorModes( colorEdgeChoices, featureKeys, branchGraphFeatureKeys );
 		add( colorEdgeChoices, c );
 
 		// Colormap and ranges.
@@ -382,16 +386,12 @@ public class ColorModePicker extends JPanel
 			}
 		} );
 		muter2.enable( colorEdgeChoices.getSelectedCategory() != EdgeColorMode.FIXED );
-
-		update();
 	}
 
 	public void update()
 	{
-		// TODO update vertex and edge color modes combo boxes
-
-		colorVertexChoices.setSelectedItem( new FeatureKeyWrapper( current.getVertexFeatureKey(), current.getVertexColorMode() ) );
-		colorEdgeChoices.setSelectedItem( new FeatureKeyWrapper( current.getEdgeFeatureKey(), current.getEdgeColorMode() ) );
+		updateVertexColorModes();
+		updateEdgeColorModes();
 		cmapVertex.setSelectedItem( current.getVertexColorMap().getName() );
 		cmapEdge.setSelectedItem( current.getEdgeColorMap().getName() );
 		minEdge.setValue( current.getMinEdgeColorRange() );
@@ -466,10 +466,7 @@ public class ColorModePicker extends JPanel
 		}
 	}
 
-	private static void updateVertexColorModes(
-			final CategoryJComboBox< VertexColorMode, FeatureKeyWrapper > comboBox,
-			final FeatureKeys featureKeys,
-			final FeatureKeys branchGraphFeatureKeys )
+	private void updateVertexColorModes()
 	{
 		/*
 		 * Harvest possible choices.
@@ -529,29 +526,42 @@ public class ColorModePicker extends JPanel
 			categoryNames.put( VertexColorMode.BRANCH_EDGE, "Branch edge" );
 		}
 
-		comboBox.resetContent( items, null, categoryNames );
+		colorVertexChoices.resetContent( items, null, categoryNames );
+
+		// Check if we can select the current mode.
+		final Collection< FeatureKeyWrapper > all = new ArrayList<>();
+		for ( final Collection< FeatureKeyWrapper > a : items.values() )
+			all.addAll( a );
+		final FeatureKeyWrapper c = new FeatureKeyWrapper( current.getVertexFeatureKey(), current.getVertexColorMode() );
+		if ( all.contains( c ) )
+			colorVertexChoices.setSelectedItem( c );
+		else
+			colorVertexChoices.setSelectedIndex( 1 );
 	}
 
-	private static void updateEdgeColorModes(
-			final CategoryJComboBox< EdgeColorMode, FeatureKeyWrapper > comboBox,
-			final FeatureKeys featureKeys,
-			final FeatureKeys branchGraphFeatureKeys )
+	private void updateEdgeColorModes()
 	{
 		/*
 		 * Harvest possible choices.
 		 */
 		final Map< EdgeColorMode, Collection< FeatureKeyWrapper > > items = new LinkedHashMap<>();
 		final Map< EdgeColorMode, String > categoryNames = new HashMap<>();
+		final Map< FeatureKeyWrapper, String > itemNames = new HashMap<>();
 
 		// Fixed color.
 		final FeatureKeyWrapper fixedColor = new FeatureKeyWrapper( "Fixed color", EdgeColorMode.FIXED );
 		items.put( EdgeColorMode.FIXED, Collections.singleton( fixedColor ) );
+		itemNames.put( fixedColor, "Fixed color" );
 		categoryNames.put( EdgeColorMode.FIXED, "Fixed" );
 
 		// This edge.
 		final Collection< FeatureKeyWrapper > edgeProjections = new ArrayList<>();
 		for ( final String projectionKey : featureKeys.getProjectionKeys( FeatureTarget.EDGE ) )
-			edgeProjections.add( new FeatureKeyWrapper( projectionKey, EdgeColorMode.EDGE ) );
+		{
+			final FeatureKeyWrapper fk = new FeatureKeyWrapper( projectionKey, EdgeColorMode.EDGE );
+			edgeProjections.add( fk );
+			itemNames.put( fk, fk.featureKey );
+		}
 		if ( !edgeProjections.isEmpty() )
 		{
 			items.put( EdgeColorMode.EDGE, edgeProjections );
@@ -563,8 +573,13 @@ public class ColorModePicker extends JPanel
 		final Collection< FeatureKeyWrapper > targetVertexProjections = new ArrayList<>();
 		for ( final String projectionKey : featureKeys.getProjectionKeys( FeatureTarget.VERTEX ) )
 		{
-			sourceVertexProjections.add( new FeatureKeyWrapper( projectionKey, EdgeColorMode.SOURCE_VERTEX ) );
-			targetVertexProjections.add( new FeatureKeyWrapper( projectionKey, EdgeColorMode.TARGET_VERTEX ) );
+			final FeatureKeyWrapper fk1 = new FeatureKeyWrapper( projectionKey, EdgeColorMode.SOURCE_VERTEX );
+			sourceVertexProjections.add( fk1 );
+			itemNames.put( fk1, fk1.featureKey );
+
+			final FeatureKeyWrapper fk2 = new FeatureKeyWrapper( projectionKey, EdgeColorMode.TARGET_VERTEX );
+			targetVertexProjections.add( fk2 );
+			itemNames.put( fk2, fk2.featureKey );
 		}
 		if ( !sourceVertexProjections.isEmpty() )
 		{
@@ -577,7 +592,11 @@ public class ColorModePicker extends JPanel
 		// Branch edge.
 		final Collection< FeatureKeyWrapper > branchEdgeProjections = new ArrayList<>();
 		for ( final String projectionKey : branchGraphFeatureKeys.getProjectionKeys( FeatureTarget.EDGE ) )
-			branchEdgeProjections.add( new FeatureKeyWrapper( projectionKey, EdgeColorMode.BRANCH_EDGE ) );
+		{
+			final FeatureKeyWrapper fk = new FeatureKeyWrapper( projectionKey, EdgeColorMode.BRANCH_EDGE );
+			branchEdgeProjections.add( fk );
+			itemNames.put( fk, fk.featureKey );
+		}
 		if ( !branchEdgeProjections.isEmpty() )
 		{
 			items.put( EdgeColorMode.BRANCH_EDGE, branchEdgeProjections );
@@ -587,14 +606,39 @@ public class ColorModePicker extends JPanel
 		// Branch vertex.
 		final Collection< FeatureKeyWrapper > branchVertexProjections = new ArrayList<>();
 		for ( final String projectionKey : branchGraphFeatureKeys.getProjectionKeys( FeatureTarget.VERTEX ) )
-			branchVertexProjections.add( new FeatureKeyWrapper( projectionKey, EdgeColorMode.BRANCH_VERTEX ) );
+		{
+			final FeatureKeyWrapper fk = new FeatureKeyWrapper( projectionKey, EdgeColorMode.BRANCH_VERTEX );
+			branchVertexProjections.add( fk );
+			itemNames.put( fk, fk.featureKey );
+		}
 		if ( !branchVertexProjections.isEmpty() )
 		{
 			items.put( EdgeColorMode.BRANCH_VERTEX, branchVertexProjections );
 			categoryNames.put( EdgeColorMode.BRANCH_VERTEX, "Branch vertex" );
 		}
 
-		comboBox.resetContent( items, null, categoryNames );
+		// Check if we can select the current mode.
+		final Collection< FeatureKeyWrapper > all = new ArrayList<>();
+		for ( final Collection< FeatureKeyWrapper > a : items.values() )
+			all.addAll( a );
+		final FeatureKeyWrapper c = new FeatureKeyWrapper( current.getEdgeFeatureKey(), current.getEdgeColorMode() );
+		if ( !all.contains( c ) && current.getEdgeColorMode() != EdgeColorMode.FIXED )
+		{
+			// Make a dummy selectable item that will not affect the ColorMode.
+			Collection< FeatureKeyWrapper > col = items.get( current.getEdgeColorMode() );
+			if ( null == col )
+			{
+				col = new ArrayList<>();
+				items.put( current.getEdgeColorMode(), col );
+				// TODO add category name too.
+			}
+			col.add( c );
+			itemNames.put( c, "Not computed: " + c.featureKey );
+		}
+
+		colorEdgeChoices.resetContent( items, itemNames, categoryNames );
+		colorEdgeChoices.setSelectedItem( c );
+
 	}
 
 	private static final class FeatureKeyWrapper
