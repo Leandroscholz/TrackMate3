@@ -420,6 +420,8 @@ public class ColorModePicker extends JPanel
 				range = featureRangeCalculator.getRange( featureKey );
 				break;
 			}
+			if (null == range)
+				return;
 			current.minVertexColorRange( Double.valueOf( range[ 0 ] ) );
 			current.maxVertexColorRange( Double.valueOf( range[ 1 ] ) );
 			minVertex.setValue( Double.valueOf( range[ 0 ] ) );
@@ -453,6 +455,8 @@ public class ColorModePicker extends JPanel
 				range = featureRangeCalculator.getRange( featureKey );
 				break;
 			}
+			if ( null == range )
+				return;
 			current.minEdgeColorRange( Double.valueOf( range[ 0 ] ) );
 			current.maxEdgeColorRange( Double.valueOf( range[ 1 ] ) );
 			minEdge.setValue( Double.valueOf( range[ 0 ] ) );
@@ -474,11 +478,12 @@ public class ColorModePicker extends JPanel
 
 		final Map< VertexColorMode, Collection< FeatureKeyWrapper > > items = new LinkedHashMap<>();
 		final Map< VertexColorMode, String > categoryNames = new HashMap<>();
+		final Map< FeatureKeyWrapper, String > itemNames = new HashMap<>();
 
 		// Fixed.
 		final FeatureKeyWrapper fixedColor = new FeatureKeyWrapper( "Fixed color", VertexColorMode.FIXED );
 		items.put( VertexColorMode.FIXED, Collections.singleton( fixedColor ) );
-		categoryNames.put( VertexColorMode.FIXED, "Fixed" );
+		categoryNames.put( VertexColorMode.FIXED, categoryName( VertexColorMode.FIXED ) );
 
 		// This vertex.
 		final Collection< FeatureKeyWrapper > vertexProjections = new ArrayList<>();
@@ -487,7 +492,7 @@ public class ColorModePicker extends JPanel
 		if ( !vertexProjections.isEmpty() )
 		{
 			items.put( VertexColorMode.VERTEX, vertexProjections );
-			categoryNames.put( VertexColorMode.VERTEX, "Vertex feature" );
+			categoryNames.put( VertexColorMode.VERTEX, categoryName( VertexColorMode.VERTEX ) );
 		}
 
 		// Incoming and outgoing edges.
@@ -502,8 +507,8 @@ public class ColorModePicker extends JPanel
 		{
 			items.put( VertexColorMode.INCOMING_EDGE, incomingEdgeProjections );
 			items.put( VertexColorMode.OUTGOING_EDGE, outgoingEdgeProjections );
-			categoryNames.put( VertexColorMode.INCOMING_EDGE, "Incoming edge feature" );
-			categoryNames.put( VertexColorMode.OUTGOING_EDGE, "Outgoing edge feature" );
+			categoryNames.put( VertexColorMode.INCOMING_EDGE, categoryName( VertexColorMode.INCOMING_EDGE ) );
+			categoryNames.put( VertexColorMode.OUTGOING_EDGE, categoryName( VertexColorMode.OUTGOING_EDGE ) );
 		}
 
 		// Branch vertex.
@@ -513,7 +518,7 @@ public class ColorModePicker extends JPanel
 		if ( !branchVertexProjections.isEmpty() )
 		{
 			items.put( VertexColorMode.BRANCH_VERTEX, branchVertexProjections );
-			categoryNames.put( VertexColorMode.BRANCH_VERTEX, "Branch vertex" );
+			categoryNames.put( VertexColorMode.BRANCH_VERTEX, categoryName( VertexColorMode.BRANCH_VERTEX ) );
 		}
 
 		// Branch edge.
@@ -523,20 +528,30 @@ public class ColorModePicker extends JPanel
 		if ( !branchEdgeProjections.isEmpty() )
 		{
 			items.put( VertexColorMode.BRANCH_EDGE, branchEdgeProjections );
-			categoryNames.put( VertexColorMode.BRANCH_EDGE, "Branch edge" );
+			categoryNames.put( VertexColorMode.BRANCH_EDGE, categoryName( VertexColorMode.BRANCH_EDGE ) );
 		}
-
-		colorVertexChoices.resetContent( items, null, categoryNames );
 
 		// Check if we can select the current mode.
 		final Collection< FeatureKeyWrapper > all = new ArrayList<>();
 		for ( final Collection< FeatureKeyWrapper > a : items.values() )
 			all.addAll( a );
 		final FeatureKeyWrapper c = new FeatureKeyWrapper( current.getVertexFeatureKey(), current.getVertexColorMode() );
-		if ( all.contains( c ) )
-			colorVertexChoices.setSelectedItem( c );
-		else
-			colorVertexChoices.setSelectedIndex( 1 );
+		if ( !all.contains( c ) && current.getVertexColorMode() != VertexColorMode.FIXED )
+		{
+			// Make a dummy selectable item that will not affect the ColorMode.
+			Collection< FeatureKeyWrapper > col = items.get( current.getVertexColorMode() );
+			if ( null == col )
+			{
+				col = new ArrayList<>();
+				items.put( current.getVertexColorMode(), col );
+				categoryNames.put( current.getVertexColorMode(), categoryName( current.getVertexColorMode() ) );
+			}
+			col.add( c );
+			itemNames.put( c, "Not computed: " + c.featureKey );
+		}
+
+		colorVertexChoices.resetContent( items, itemNames, categoryNames );
+		colorVertexChoices.setSelectedItem( c );
 	}
 
 	private void updateEdgeColorModes()
@@ -552,7 +567,7 @@ public class ColorModePicker extends JPanel
 		final FeatureKeyWrapper fixedColor = new FeatureKeyWrapper( "Fixed color", EdgeColorMode.FIXED );
 		items.put( EdgeColorMode.FIXED, Collections.singleton( fixedColor ) );
 		itemNames.put( fixedColor, "Fixed color" );
-		categoryNames.put( EdgeColorMode.FIXED, "Fixed" );
+		categoryNames.put( EdgeColorMode.FIXED, categoryName( EdgeColorMode.FIXED ) );
 
 		// This edge.
 		final Collection< FeatureKeyWrapper > edgeProjections = new ArrayList<>();
@@ -565,7 +580,7 @@ public class ColorModePicker extends JPanel
 		if ( !edgeProjections.isEmpty() )
 		{
 			items.put( EdgeColorMode.EDGE, edgeProjections );
-			categoryNames.put( EdgeColorMode.EDGE, "Edge feature" );
+			categoryNames.put( EdgeColorMode.EDGE, categoryName( EdgeColorMode.EDGE ) );
 		}
 
 		// Source and target vertex.
@@ -585,8 +600,8 @@ public class ColorModePicker extends JPanel
 		{
 			items.put( EdgeColorMode.SOURCE_VERTEX, sourceVertexProjections );
 			items.put( EdgeColorMode.TARGET_VERTEX, targetVertexProjections );
-			categoryNames.put( EdgeColorMode.SOURCE_VERTEX, "Source vertex feature" );
-			categoryNames.put( EdgeColorMode.TARGET_VERTEX, "Target vertex feature" );
+			categoryNames.put( EdgeColorMode.SOURCE_VERTEX, categoryName( EdgeColorMode.SOURCE_VERTEX ) );
+			categoryNames.put( EdgeColorMode.TARGET_VERTEX, categoryName( EdgeColorMode.TARGET_VERTEX ) );
 		}
 
 		// Branch edge.
@@ -600,7 +615,7 @@ public class ColorModePicker extends JPanel
 		if ( !branchEdgeProjections.isEmpty() )
 		{
 			items.put( EdgeColorMode.BRANCH_EDGE, branchEdgeProjections );
-			categoryNames.put( EdgeColorMode.BRANCH_EDGE, "Branch edge" );
+			categoryNames.put( EdgeColorMode.BRANCH_EDGE, categoryName( EdgeColorMode.BRANCH_EDGE ) );
 		}
 
 		// Branch vertex.
@@ -614,7 +629,7 @@ public class ColorModePicker extends JPanel
 		if ( !branchVertexProjections.isEmpty() )
 		{
 			items.put( EdgeColorMode.BRANCH_VERTEX, branchVertexProjections );
-			categoryNames.put( EdgeColorMode.BRANCH_VERTEX, "Branch vertex" );
+			categoryNames.put( EdgeColorMode.BRANCH_VERTEX, categoryName( EdgeColorMode.BRANCH_VERTEX ) );
 		}
 
 		// Check if we can select the current mode.
@@ -630,7 +645,7 @@ public class ColorModePicker extends JPanel
 			{
 				col = new ArrayList<>();
 				items.put( current.getEdgeColorMode(), col );
-				// TODO add category name too.
+				categoryNames.put( current.getEdgeColorMode(), categoryName( current.getEdgeColorMode() ) );
 			}
 			col.add( c );
 			itemNames.put( c, "Not computed: " + c.featureKey );
@@ -639,6 +654,48 @@ public class ColorModePicker extends JPanel
 		colorEdgeChoices.resetContent( items, itemNames, categoryNames );
 		colorEdgeChoices.setSelectedItem( c );
 
+	}
+
+	private static final String categoryName( final EdgeColorMode colorMode )
+	{
+		switch ( colorMode )
+		{
+		case BRANCH_EDGE:
+			return "Branch link feature";
+		case BRANCH_VERTEX:
+			return "Branch spot feature";
+		case EDGE:
+			return "Link feature";
+		case FIXED:
+			return "Fixed";
+		case SOURCE_VERTEX:
+			return "Source spot feature";
+		case TARGET_VERTEX:
+			return "Target spot feature";
+		default:
+			return colorMode.toString();
+		}
+	}
+
+	private static final String categoryName( final VertexColorMode colorMode )
+	{
+		switch ( colorMode )
+		{
+		case BRANCH_EDGE:
+			return "Branch link feature";
+		case BRANCH_VERTEX:
+			return "Branch spot feature";
+		case FIXED:
+			return "Fixed";
+		case INCOMING_EDGE:
+			return "Incoming link feature";
+		case OUTGOING_EDGE:
+			return "Outoing link feature";
+		case VERTEX:
+			return "Spot feature";
+		default:
+			return colorMode.toString();
+		}
 	}
 
 	private static final class FeatureKeyWrapper
