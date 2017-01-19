@@ -25,7 +25,11 @@ implements FeatureRangeCalculator
 	@Override
 	public double[] getRange( final String projectionKey )
 	{
-		switch ( featureModel.getProjectionTarget( projectionKey ) )
+		final FeatureTarget fp = featureModel.getProjectionTarget( projectionKey );
+		if ( null == fp )
+			return null;
+
+		switch ( fp )
 		{
 		case EDGE:
 		{
