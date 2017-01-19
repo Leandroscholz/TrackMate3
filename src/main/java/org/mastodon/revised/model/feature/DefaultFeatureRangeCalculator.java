@@ -4,6 +4,20 @@ import org.mastodon.graph.Edge;
 import org.mastodon.graph.ReadOnlyGraph;
 import org.mastodon.graph.Vertex;
 
+/**
+ * Default feature range calculator for a specific graph instance.
+ * <p>
+ * Ranges are calculated for feature projections over all the vertices and edges
+ * of the graph. They are re-calculated on each call to
+ * {@link #getRange(String)}, there is no caching.
+ * 
+ * @author Jean-Yves Tinevez.
+ *
+ * @param <V>
+ *            the type of vertices of the graph.
+ * @param <E>
+ *            the type of edges of the graph.
+ */
 public class DefaultFeatureRangeCalculator<
 	V extends Vertex< E >,
 	E extends Edge< V > >
@@ -14,6 +28,14 @@ implements FeatureRangeCalculator
 
 	private final FeatureModel< V, E > featureModel;
 
+	/**
+	 * Creates a feature range calculator for the specified graph.
+	 * 
+	 * @param graph
+	 *            the graph.
+	 * @param featureModel
+	 *            a feature model used to retrieve feature projections.
+	 */
 	public DefaultFeatureRangeCalculator(
 			final ReadOnlyGraph< V, E > graph,
 			final FeatureModel< V, E > featureModel )

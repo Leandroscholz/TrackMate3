@@ -11,6 +11,16 @@ import org.mastodon.features.Feature;
 import org.mastodon.graph.Edge;
 import org.mastodon.graph.Vertex;
 
+/**
+ * Default feature model.
+ * 
+ * @author Jean-Yves Tinevez
+ *
+ * @param <V>
+ *            the type of vertices.
+ * @param <E>
+ *            the type of edges.
+ */
 public class DefaultFeatureModel< V extends Vertex< E >, E extends Edge< V > > implements FeatureModel< V, E >
 {
 
@@ -26,6 +36,9 @@ public class DefaultFeatureModel< V extends Vertex< E >, E extends Edge< V > > i
 
 	private final EnumMap< FeatureTarget, Set< String > > projectionKeys;
 
+	/**
+	 * Creates a new, empty, feature model.
+	 */
 	public DefaultFeatureModel()
 	{
 		featureTargets = new HashMap<>();

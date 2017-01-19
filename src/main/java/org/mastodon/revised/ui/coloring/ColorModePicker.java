@@ -40,6 +40,9 @@ import org.mastodon.revised.ui.util.ColorMap;
 
 /**
  * GUI element to configure a {@link ColorMode} implementation.
+ * <p>
+ * If the color mode instance is modified elsewhere, this GUI is not refreshed
+ * automatically. See {@link #update()}.
  *
  * @author Jean-Yves Tinevez.
  */
@@ -388,6 +391,14 @@ public class ColorModePicker extends JPanel
 		muter2.enable( colorEdgeChoices.getSelectedCategory() != EdgeColorMode.FIXED );
 	}
 
+	/**
+	 * Refreshes this GUI content, reading fields from the {@link ColorMode} it
+	 * currently displays.
+	 * <p>
+	 * The list of available feature projections is refreshed as well. If the
+	 * current color mode points to an unknown feature projection, the combo box
+	 * will state so.
+	 */
 	public void update()
 	{
 		updateVertexColorModes();
