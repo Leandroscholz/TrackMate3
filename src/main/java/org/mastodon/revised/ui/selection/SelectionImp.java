@@ -19,8 +19,6 @@ import org.mastodon.graph.Vertex;
  * return consistent results. For instance, if a vertex marked as selected in
  * this class is later removed from the graph, the
  * {@link #getSelectedVertices()} method will not return it.
- * <p>
- * TODO: less severe synchronization
  *
  * @author Tobias Pietzsch
  *
@@ -30,7 +28,6 @@ import org.mastodon.graph.Vertex;
  *            the type of the edges.
  */
 // TODO: less severe synchronization
-// TODO: should Selection be an interface?
 public class SelectionImp< V extends Vertex< E >, E extends Edge< V > >
 		implements Selection< V, E >, GraphListener< V, E >
 {

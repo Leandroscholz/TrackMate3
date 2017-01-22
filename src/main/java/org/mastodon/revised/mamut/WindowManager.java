@@ -892,8 +892,8 @@ public class WindowManager
 	}
 
 	/**
-	 * Sets the style of a BDV when executed & registers itself as a listener
-	 * for style changes to repaint said BDV.
+	 * Sets the style of a BDV when executed &amp; registers itself as a
+	 * listener for style changes to repaint said BDV.
 	 */
 	private class BdvRenderSettingsAction extends AbstractNamedAction
 	{

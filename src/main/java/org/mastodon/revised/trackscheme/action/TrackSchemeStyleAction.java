@@ -9,8 +9,10 @@ import org.mastodon.revised.ui.coloring.FeaturesColorGenerator;
 import org.scijava.ui.behaviour.util.AbstractNamedAction;
 
 /**
- * Sets the style of a TrackScheme panel when executed & registers a
- * listener for style changes to repaint said panel.
+ * Sets the style of a TrackScheme panel when executed and registers a listener
+ * for style changes to repaint said panel.
+ *
+ * TODO remove
  */
 public class TrackSchemeStyleAction extends AbstractNamedAction
 {

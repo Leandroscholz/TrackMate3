@@ -14,8 +14,6 @@ import org.mastodon.graph.Vertex;
  * return consistent results. For instance, if a vertex marked as selected in
  * this class is later removed from the graph, the
  * {@link #getSelectedVertices()} method will not return it.
- * <p>
- * TODO: less severe synchronization
  *
  * @author Tobias Pietzsch
  *
@@ -30,7 +28,7 @@ public interface Selection< V extends Vertex< E >, E extends Edge< V > >
 	/**
 	 * Get the selected state of a vertex.
 	 *
-	 * @param v
+	 * @param vertex
 	 *            a vertex.
 	 * @return {@code true} if specified vertex is selected.
 	 */
@@ -39,7 +37,7 @@ public interface Selection< V extends Vertex< E >, E extends Edge< V > >
 	/**
 	 * Get the selected state of an edge.
 	 *
-	 * @param e
+	 * @param edge
 	 *            an edge.
 	 * @return {@code true} if specified edge is selected.
 	 */
@@ -48,7 +46,7 @@ public interface Selection< V extends Vertex< E >, E extends Edge< V > >
 	/**
 	 * Sets the selected state of a vertex.
 	 *
-	 * @param v
+	 * @param vertex
 	 *            a vertex.
 	 * @param selected
 	 *            selected state to set for specified vertex.
@@ -58,7 +56,7 @@ public interface Selection< V extends Vertex< E >, E extends Edge< V > >
 	/**
 	 * Sets the selected state of an edge.
 	 *
-	 * @param e
+	 * @param edge
 	 *            an edge.
 	 * @param selected
 	 *            selected state to set for specified edge.
@@ -68,7 +66,7 @@ public interface Selection< V extends Vertex< E >, E extends Edge< V > >
 	/**
 	 * Toggles the selected state of a vertex.
 	 *
-	 * @param v
+	 * @param vertex
 	 *            a vertex.
 	 */
 	public void toggle( final V vertex );
@@ -76,7 +74,7 @@ public interface Selection< V extends Vertex< E >, E extends Edge< V > >
 	/**
 	 * Toggles the selected state of an edge.
 	 *
-	 * @param e
+	 * @param edge
 	 *            an edge.
 	 */
 	public void toggle( final E edge );
@@ -125,11 +123,40 @@ public interface Selection< V extends Vertex< E >, E extends Edge< V > >
 	 */
 	public RefSet< V > getSelectedVertices();
 
+	/**
+	 * Adds a listener that will be notified when the selection is changed via
+	 * this instance.
+	 *
+	 * @param listener
+	 *            the listener to add.
+	 * @return <code>true</code> if the listener was not already registered and
+	 *         was successfully added.
+	 */
 	public boolean addSelectionListener( final SelectionListener listener );
 
+	/**
+	 * Removes the specified listener from this instance.
+	 *
+	 * @param listener
+	 *            the listener to remove.
+	 * @return <code>true</code> if the listener was registered in this instance
+	 *         and was successfully removed.
+	 */
 	public boolean removeSelectionListener( final SelectionListener listener );
 
+	/**
+	 * Pauses emitting events to listeners. If a selection change happens after
+	 * this method has been called, the listeners will not be notified.
+	 *
+	 * @see #resumeListeners()
+	 */
+	public void pauseListeners();
+
+	/**
+	 * Resumes emitting events to listener, after it has been paused. If a
+	 * selection change event happened while the emitting of events was paused,
+	 * an event is fired as this method is called.
+	 */
 	public void resumeListeners();
 
-	public void pauseListeners();
 }
