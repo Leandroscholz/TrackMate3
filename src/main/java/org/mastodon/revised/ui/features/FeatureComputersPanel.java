@@ -237,7 +237,7 @@ public class FeatureComputersPanel extends JPanel
 
 		for ( final String computer : computers )
 		{
-			final boolean selected = false;
+			final boolean selected = true;
 			final JCheckBox checkBox = new JCheckBox( computer, selected );
 			checkBox.addActionListener( new ActionListener()
 			{
@@ -250,6 +250,9 @@ public class FeatureComputersPanel extends JPanel
 						selectedFeatures.remove( computer );
 				}
 			} );
+			if ( selected )
+				selectedFeatures.add( computer );
+
 			c.gridy++;
 			c.gridx = 0;
 			c.weightx = 1.;
@@ -288,7 +291,7 @@ public class FeatureComputersPanel extends JPanel
 			return Boolean.valueOf( ok );
 		}
 	}
-	
+
 	private class MyProgressBar extends JProgressBar implements ProgressListener
 	{
 
