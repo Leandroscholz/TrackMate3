@@ -23,7 +23,6 @@ public class TagFeatureValue< O > implements FeatureValue< Tag >
 		this.tags = tags;
 		this.object = object;
 		this.notify = notify;
-
 	}
 
 	@Override
@@ -36,12 +35,6 @@ public class TagFeatureValue< O > implements FeatureValue< Tag >
 			featureMap.put( object, value.index() );
 	}
 
-	public void set( final int value )
-	{
-		notify.notifyBeforeFeatureChange();
-		featureMap.put( object, value );
-	}
-
 	@Override
 	public void remove()
 	{
@@ -52,7 +45,7 @@ public class TagFeatureValue< O > implements FeatureValue< Tag >
 	@Override
 	public Tag get()
 	{
-		final int index = getIndex();
+		final int index = featureMap.get( object );
 		return ( index == featureMap.getNoEntryValue() ) ? null : tags.get( index );
 	}
 
@@ -61,10 +54,4 @@ public class TagFeatureValue< O > implements FeatureValue< Tag >
 	{
 		return featureMap.containsKey( object );
 	}
-
-	int getIndex()
-	{
-		return featureMap.get( object );
-	}
-
 }

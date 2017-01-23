@@ -24,7 +24,7 @@ import gnu.trove.map.TObjectIntMap;
  * <p>
  * Defines and manage a set of tags for a specified Ref collection. Tags can be
  * added and removed to the set managed by this feature instance.
- * 
+ *
  * @author Jean-Yves Tinevez
  *
  * @param <O>
@@ -60,10 +60,12 @@ public class TagSetFeature< O extends WithFeatures< O > > extends Feature< TObje
 	 */
 	private final Random ran;
 
+	private String name;
 
-	protected TagSetFeature( final String key, final RefCollection< O > pool ) throws DuplicateKeyException
+	public TagSetFeature( final String key, final String name, final RefCollection< O > pool ) throws DuplicateKeyException
 	{
 		super( key );
+		this.name = name;
 		this.noEntryValue = -1;
 		this.tags = new TIntObjectArrayMap<>();
 		this.map = RefCollections.createRefIntMap( pool, noEntryValue );
@@ -73,7 +75,7 @@ public class TagSetFeature< O extends WithFeatures< O > > extends Feature< TObje
 
 	/**
 	 * Returns the tags managed in this feature.
-	 * 
+	 *
 	 * @return the tags.
 	 */
 	public Collection< Tag > getTags()
@@ -83,7 +85,7 @@ public class TagSetFeature< O extends WithFeatures< O > > extends Feature< TObje
 
 	/**
 	 * Creates a new tag in this feature.
-	 * 
+	 *
 	 * @return the new tag.
 	 */
 	public Tag createTag()
@@ -99,9 +101,9 @@ public class TagSetFeature< O extends WithFeatures< O > > extends Feature< TObje
 	/**
 	 * Removes the specified tag from this feature. Object with values set to
 	 * this tag are unset.
-	 * 
+	 *
 	 * TODO Make it undoable.
-	 * 
+	 *
 	 * @param tag
 	 *            the tag to remove.
 	 * @return <code>true</code> if the specified tag belonged to this feature
@@ -157,4 +159,19 @@ public class TagSetFeature< O extends WithFeatures< O > > extends Feature< TObje
 		return new TagUndoFeatureMap<>( featureMap, noEntryValue );
 	}
 
+	@Override
+	public String toString()
+	{
+		return name;
+	}
+
+	public void setName( final String name )
+	{
+		this.name = name;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
 }
