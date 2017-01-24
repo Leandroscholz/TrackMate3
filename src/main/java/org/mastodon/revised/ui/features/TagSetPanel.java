@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
@@ -15,8 +16,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.geom.RoundRectangle2D;
-import java.io.File;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,19 +31,14 @@ import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.WindowConstants;
 
 import org.mastodon.collection.RefCollection;
 import org.mastodon.features.WithFeatures;
-import org.mastodon.revised.model.mamut.Model;
 import org.mastodon.revised.model.tagset.Tag;
 import org.mastodon.revised.model.tagset.TagSetFeature;
 import org.mastodon.revised.ui.util.ColorMap;
@@ -107,6 +101,7 @@ public class TagSetPanel< O extends WithFeatures< O > > extends JPanel
 		horizontalBox.add( hs1 );
 
 		final JLabel lblTagSet = new JLabel( "Tag set:" );
+		lblTagSet.setFont( getFont().deriveFont( Font.BOLD ) );
 		horizontalBox.add( lblTagSet );
 
 		final Component hs2 = Box.createHorizontalStrut( 20 );
@@ -115,6 +110,7 @@ public class TagSetPanel< O extends WithFeatures< O > > extends JPanel
 
 		this.model = new DefaultComboBoxModel<>();
 		final JComboBox< TagSetFeature< O > > comboBoxTagSets = new JComboBox<>( model );
+		comboBoxTagSets.setFont( getFont().deriveFont( Font.BOLD ) );
 		comboBoxTagSets.addActionListener( e -> update() );
 		horizontalBox.add( comboBoxTagSets );
 		comboBoxTagSets.setEditable( true );
@@ -475,9 +471,10 @@ public class TagSetPanel< O extends WithFeatures< O > > extends JPanel
 		public EditorPane()
 		{
 			field = new JTextField( 10 );
+			field.setFont( getFont().deriveFont( Font.BOLD ) );
 			setLayout( new GridBagLayout() );
 			final GridBagConstraints gbc = new GridBagConstraints();
-			gbc.weightx = 1;
+			gbc.weightx = 0.8;
 			gbc.fill = GridBagConstraints.HORIZONTAL;
 			gbc.gridx = 0;
 			add( field, gbc );
@@ -515,18 +512,5 @@ public class TagSetPanel< O extends WithFeatures< O > > extends JPanel
 			field.removeActionListener( listener );
 		}
 
-	}
-
-	public static void main( final String[] args ) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException
-	{
-		final Model model = new Model();
-		model.loadRaw( new File( "samples/model_revised.raw" ) );
-
-		UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
-		final JFrame frame = new JFrame();
-		frame.getContentPane().add( new TagSetPanel<>( model.getGraph().vertices() ) );
-		frame.setSize( 400, 400 );
-		frame.setDefaultCloseOperation( WindowConstants.EXIT_ON_CLOSE );
-		frame.setVisible( true );
 	}
 }
