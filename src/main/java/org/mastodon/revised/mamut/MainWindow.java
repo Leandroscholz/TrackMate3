@@ -220,7 +220,7 @@ public class MainWindow extends JFrame
 						graphFeatureRangeCalculator,
 						windowManager.getModel().getBranchGraphFeatureModel(),
 						branchGraphFeatureRangeCalculator,
-						windowManager.getModel().getTagSetModel() );
+						windowManager.getModel().getGraphTagSetModel() );
 		displaySettingsDialog.setSize( 480, 1000 );
 
 		final ActionListener[] listeners = displaySettingsButton.getActionListeners();

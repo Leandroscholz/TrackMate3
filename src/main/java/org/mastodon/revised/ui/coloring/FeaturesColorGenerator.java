@@ -7,6 +7,8 @@ import org.mastodon.graph.ReadOnlyGraph;
 import org.mastodon.graph.Vertex;
 import org.mastodon.revised.model.feature.FeatureModel;
 import org.mastodon.revised.model.feature.FeatureProjection;
+import org.mastodon.revised.model.feature.TagSetModel;
+import org.mastodon.revised.model.feature.TagSetProjection;
 import org.mastodon.revised.ui.coloring.ColorMode.EdgeColorMode;
 import org.mastodon.revised.ui.coloring.ColorMode.VertexColorMode;
 import org.mastodon.revised.ui.util.ColorMap;
@@ -43,18 +45,23 @@ public class FeaturesColorGenerator< V extends Vertex< E >, E extends Edge< V > 
 
 	private final FeatureModel< V, E > features;
 
+	private final TagSetModel< V, E > tagSets;
+
 	private static final Color DEFAULT_EDGE_COLOR = Color.BLACK;
 
 	private static final Color DEFAULT_VERTEX_COLOR = Color.BLACK;
 
+
 	public FeaturesColorGenerator(
 			final ColorMode colorMode,
 			final ReadOnlyGraph< V, E > graph,
-			final FeatureModel< V, E > features )
+			final FeatureModel< V, E > features,
+			final TagSetModel< V, E > tagSets )
 	{
 		this.colorMode = colorMode;
 		this.graph = graph;
 		this.features = features;
+		this.tagSets = tagSets;
 		colorModeChanged();
 	}
 
@@ -93,6 +100,15 @@ public class FeaturesColorGenerator< V extends Vertex< E >, E extends Edge< V > 
 				vertexColorGenerator = new ThisVertexColorGenerator( vfp, colorMode.getVertexColorMap(), colorMode.getMinVertexColorRange(), colorMode.getMaxVertexColorRange() );
 			break;
 		}
+		case TAG:
+		{
+			final TagSetProjection< V > tagset = tagSets.getVertexTagSetProjection( colorMode.getVertexFeatureKey() );
+			if ( null == tagset )
+				vertexColorGenerator = new FixedVertexColorGenerator( Color.BLACK );
+			else
+				vertexColorGenerator = new VertexTagSetColorGenerator( tagset );
+			break;
+		}
 		}
 
 		switch ( colorMode.getEdgeColorMode() )
@@ -128,6 +144,15 @@ public class FeaturesColorGenerator< V extends Vertex< E >, E extends Edge< V > 
 				edgeColorGenerator = new FixedEdgeColorGenerator( colorMode.getEdgeColorMap().getMissingColor() );
 			else
 				edgeColorGenerator = new TargetVertexEdgeColorGenerator( efp, colorMode.getEdgeColorMap(), colorMode.getMinEdgeColorRange(), colorMode.getMaxEdgeColorRange() );
+			break;
+		}
+		case TAG:
+		{
+			final TagSetProjection< E > tagset = tagSets.getEdgeTagSetProjection( colorMode.getVertexFeatureKey() );
+			if ( null == tagset )
+				edgeColorGenerator = new FixedEdgeColorGenerator( Color.BLACK );
+			else
+				edgeColorGenerator = new EdgeTagSetColorGenerator( tagset );
 			break;
 		}
 		}
@@ -298,6 +323,44 @@ public class FeaturesColorGenerator< V extends Vertex< E >, E extends Edge< V > 
 		public Color color( final E edge )
 		{
 			return color;
+		}
+	}
+	
+	protected class EdgeTagSetColorGenerator implements EdgeColorGenerator< E >
+	{
+
+		private final TagSetProjection< E > tagSet;
+
+		public EdgeTagSetColorGenerator( final TagSetProjection< E > tagSet )
+		{
+			this.tagSet = tagSet;
+		}
+
+		@Override
+		public Color color( final E edge )
+		{
+			if ( !tagSet.isSet( edge ) )
+				return tagSet.getMissingColor();
+			return tagSet.get( edge ).color();
+		}
+	}
+
+	protected class VertexTagSetColorGenerator implements VertexColorGenerator< V >
+	{
+
+		private final TagSetProjection< V > tagSet;
+
+		public VertexTagSetColorGenerator( final TagSetProjection< V > tagSet )
+		{
+			this.tagSet = tagSet;
+		}
+
+		@Override
+		public Color color( final V vertex )
+		{
+			if ( !tagSet.isSet( vertex ) )
+				return tagSet.getMissingColor();
+			return tagSet.get( vertex ).color();
 		}
 	}
 

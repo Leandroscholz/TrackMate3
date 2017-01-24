@@ -61,7 +61,9 @@ public class Model extends AbstractModel< ModelGraph, Spot, Link > implements Un
 
 	private final FeatureModel< BranchVertex, BranchEdge > branchGraphFeatureModel;
 
-	private final TagSetModel< Spot, Link > tagsetModel;
+	private final TagSetModel< Spot, Link > tagSetModel;
+
+	private final TagSetModel< BranchVertex, BranchEdge > branchGraphTagSetModel;
 
 	public Model()
 	{
@@ -73,7 +75,8 @@ public class Model extends AbstractModel< ModelGraph, Spot, Link > implements Un
 
 		graphFeatureModel = new DefaultFeatureModel<>();
 		branchGraphFeatureModel = new DefaultFeatureModel<>();
-		tagsetModel = new DefaultTagSetModel<>();
+		tagSetModel = new DefaultTagSetModel<>();
+		branchGraphTagSetModel = new DefaultTagSetModel<>();
 
 		vertexFeaturesToSerialize = new ArrayList<>();
 		vertexFeaturesToSerialize.add( ModelFeatures.LABEL );
@@ -164,9 +167,14 @@ public class Model extends AbstractModel< ModelGraph, Spot, Link > implements Un
 		return branchGraphFeatureModel;
 	}
 
-	public TagSetModel< Spot, Link > getTagSetModel()
+	public TagSetModel< Spot, Link > getGraphTagSetModel()
 	{
-		return tagsetModel;
+		return tagSetModel;
+	}
+
+	public TagSetModel< BranchVertex, BranchEdge > getBranchGraphTagSetModel()
+	{
+		return branchGraphTagSetModel;
 	}
 
 }

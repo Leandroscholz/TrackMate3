@@ -2,7 +2,6 @@ package org.mastodon.revised.model.feature;
 
 import java.util.Collection;
 
-import org.mastodon.features.WithFeatures;
 import org.mastodon.revised.model.tagset.TagSetFeature;
 
 /**
@@ -15,28 +14,38 @@ import org.mastodon.revised.model.tagset.TagSetFeature;
  * @param <E>
  *            the type of edges in the model.
  */
-public interface TagSetModel< V extends WithFeatures< V >, E extends WithFeatures< E > > extends TagSetKeys
+public interface TagSetModel< V, E > extends TagSetKeys
 {
 
 	/**
-	 * Returns the vertex tag-set feature with the specified key.
+	 * Returns the tag-set feature with the specified key.
 	 * 
 	 * @param key
 	 *            the tag-set key.
-	 * @return the tag-set feature, or <code>null</code> if this key is unknown
-	 *         to this model or defined for another target than a vertex.
+	 * @return the tag-set feature, or <code>null</code> if this key is unknown.
 	 */
-	public TagSetFeature< V > getVertexTagSet( String key );
+	public TagSetFeature< ? > getTagSet( String key );
+	
+	/**
+	 * Returns the projection of the tag-set with the specified key.
+	 * 
+	 * @param key
+	 *            the tag-set key.
+	 * @return the tag-set projection, or <code>null</code> if this key is
+	 *         unknown to this model or defined for another target than a
+	 *         vertex.
+	 */
+	public TagSetProjection< V > getVertexTagSetProjection( String key );
 
 	/**
-	 * Returns the edge tag-set feature with the specified key.
+	 * Returns the projection of the tag-set with the specified key.
 	 * 
 	 * @param key
 	 *            the tag-set key.
-	 * @return the tag-set feature, or <code>null</code> if this key is unknown
-	 *         to this model or defined for another target than an edge.
+	 * @return the tag-set projection, or <code>null</code> if this key is
+	 *         unknown to this model or defined for another target than an edge.
 	 */
-	public TagSetFeature< E > getEdgeTagSet( String key );
+	public TagSetProjection< E > getEdgeTagSetProjection( String key );
 
 	/**
 	 * Clear this tag-set model.

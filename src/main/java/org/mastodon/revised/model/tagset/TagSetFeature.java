@@ -1,5 +1,6 @@
 package org.mastodon.revised.model.tagset;
 
+import java.awt.Color;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Random;
@@ -12,7 +13,6 @@ import org.mastodon.features.FeatureCleanup;
 import org.mastodon.features.FeatureRegistry.DuplicateKeyException;
 import org.mastodon.features.Features;
 import org.mastodon.features.UndoFeatureMap;
-import org.mastodon.features.WithFeatures;
 import org.mastodon.revised.ui.util.ColorMap;
 
 import gnu.trove.iterator.TObjectIntIterator;
@@ -30,7 +30,7 @@ import gnu.trove.map.TObjectIntMap;
  * @param <O>
  *            the type of objects that will labeled by this tag-set.
  */
-public class TagSetFeature< O extends WithFeatures< O > > extends Feature< TObjectIntMap< O >, O, TagFeatureValue< O > >
+public class TagSetFeature< O > extends Feature< TObjectIntMap< O >, O, TagFeatureValue< O > >
 {
 	private final int noEntryValue;
 
@@ -62,10 +62,18 @@ public class TagSetFeature< O extends WithFeatures< O > > extends Feature< TObje
 
 	private String name;
 
-	public TagSetFeature( final String key, final String name, final RefCollection< O > pool ) throws DuplicateKeyException
+	private final Color missingColor;
+
+	public TagSetFeature( final String key, final String name, final RefCollection< O > pool )
+	{
+		this( key, name, pool, Color.BLACK );
+	}
+
+	public TagSetFeature( final String key, final String name, final RefCollection< O > pool, final Color missingColor ) throws DuplicateKeyException
 	{
 		super( key );
 		this.name = name;
+		this.missingColor = missingColor;
 		this.noEntryValue = -1;
 		this.tags = new TIntObjectArrayMap<>();
 		this.map = RefCollections.createRefIntMap( pool, noEntryValue );
@@ -173,5 +181,10 @@ public class TagSetFeature< O extends WithFeatures< O > > extends Feature< TObje
 	public String getName()
 	{
 		return name;
+	}
+
+	public Color getMissingColor()
+	{
+		return missingColor;
 	}
 }

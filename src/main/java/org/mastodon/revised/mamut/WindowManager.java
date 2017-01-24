@@ -22,6 +22,7 @@ import org.mastodon.adapter.HighlightAdapter;
 import org.mastodon.adapter.NavigationHandlerAdapter;
 import org.mastodon.adapter.RefBimap;
 import org.mastodon.adapter.SelectionAdapter;
+import org.mastodon.adapter.TagSetModelAdapter;
 import org.mastodon.graph.GraphChangeListener;
 import org.mastodon.graph.GraphIdBimap;
 import org.mastodon.graph.ListenableReadOnlyGraph;
@@ -56,6 +57,7 @@ import org.mastodon.revised.model.branchgraph.BranchGraphHighlightAdapter;
 import org.mastodon.revised.model.branchgraph.BranchGraphNavigationHandlerAdapter;
 import org.mastodon.revised.model.branchgraph.BranchGraphSelectionAdapter;
 import org.mastodon.revised.model.feature.FeatureModel;
+import org.mastodon.revised.model.feature.TagSetModel;
 import org.mastodon.revised.model.mamut.BoundingSphereRadiusStatistics;
 import org.mastodon.revised.model.mamut.BranchGraphModelOverlayProperties;
 import org.mastodon.revised.model.mamut.Link;
@@ -443,6 +445,13 @@ public class WindowManager
 				new FeatureModelAdapter<>( featureModel, vertexMap, edgeMap );
 
 		/*
+		 * Tag-sets for the BDV.
+		 */
+		final TagSetModel< Spot, Link > tagSetModel = model.getGraphTagSetModel();
+		final TagSetModel< OverlayVertexWrapper< Spot, Link >, OverlayEdgeWrapper< Spot, Link > > bdvTagSets =
+				new TagSetModelAdapter<>( tagSetModel, vertexMap, edgeMap );
+
+		/*
 		 * Color generator for BDV.
 		 */
 
@@ -450,7 +459,7 @@ public class WindowManager
 				new BranchGraphAdapter<>( model.getBranchGraph(), vertexMap, edgeMap );
 		final FeaturesColorGenerator< OverlayVertexWrapper< Spot, Link >, OverlayEdgeWrapper< Spot, Link > > colorGenerator =
 				new FeaturesColorGeneratorBranchFeatures<>( RenderSettings.defaultStyle(),
-						overlayGraph, bdvFeatures,
+						overlayGraph, bdvFeatures, bdvTagSets,
 						bdvBranchGraph, model.getBranchGraphFeatureModel() );
 
 		viewer.setTimepoint( currentTimepoint );
@@ -645,8 +654,19 @@ public class WindowManager
 		final FeatureModel< BranchVertex, BranchEdge > featureModel = model.getBranchGraphFeatureModel();
 		final FeatureModel< OverlayVertexWrapper< BranchVertex, BranchEdge >, OverlayEdgeWrapper< BranchVertex, BranchEdge > > bdvBranchFeatures =
 				new FeatureModelAdapter<>( featureModel, vertexMap, edgeMap );
+
+		/*
+		 * Tag-sets for the BDV on a branch graph.
+		 */
+		final TagSetModel< BranchVertex, BranchEdge > tagSetModel = model.getBranchGraphTagSetModel();
+		final TagSetModel< OverlayVertexWrapper< BranchVertex, BranchEdge >, OverlayEdgeWrapper< BranchVertex, BranchEdge > > bdvBranchTagSets =
+				new TagSetModelAdapter<>( tagSetModel, vertexMap, edgeMap );
+
+		/*
+		 * Special coloring.
+		 */
 		final BranchGraphFeaturesColorGenerator< OverlayVertexWrapper< BranchVertex, BranchEdge >, OverlayEdgeWrapper< BranchVertex, BranchEdge > > colorGenerator =
-				new BranchGraphFeaturesColorGenerator<>( RenderSettings.defaultStyle(), overlayBranchGraph, bdvBranchFeatures );
+				new BranchGraphFeaturesColorGenerator<>( RenderSettings.defaultStyle(), overlayBranchGraph, bdvBranchFeatures, bdvBranchTagSets );
 
 		// BDV.
 		final String windowTitle = "BigDataViewer branches " + ( bdvName++ );
@@ -989,6 +1009,13 @@ public class WindowManager
 				new FeatureModelAdapter<>( featureModel, vertexMap, edgeMap );
 
 		/*
+		 * Tag-sets for TrackScheme.
+		 */
+		final TagSetModel< Spot, Link > tagSetModel = model.getGraphTagSetModel();
+		final TagSetModel< TrackSchemeVertex, TrackSchemeEdge > trackSchemeTagSets =
+				new TagSetModelAdapter<>( tagSetModel, vertexMap, edgeMap );
+
+		/*
 		 * TrackScheme ContextChooser.
 		 */
 		final TrackSchemeContextListener< Spot > contextListener = new TrackSchemeContextListener<>(
@@ -997,13 +1024,16 @@ public class WindowManager
 		final ContextChooser< Spot > contextChooser = new ContextChooser<>( contextListener );
 
 		/*
-		 * Tune TrackScheme options to use a feature-based coloring scheme.
+		 * Tune TrackScheme options to use a feature and tag-based coloring
+		 * scheme.
 		 */
 
 		final BranchGraph< BranchVertex, BranchEdge, TrackSchemeVertex, TrackSchemeEdge > trackSchemeBranchGraph =
 				new BranchGraphAdapter<>( model.getBranchGraph(), vertexMap, edgeMap );
 		final FeaturesColorGenerator< TrackSchemeVertex, TrackSchemeEdge > colorGenerator =
-				new FeaturesColorGeneratorBranchFeatures<>( TrackSchemeStyle.defaultStyle(), trackSchemeGraph, trackSchemeFeatures, trackSchemeBranchGraph, model.getBranchGraphFeatureModel() );
+				new FeaturesColorGeneratorBranchFeatures<>( TrackSchemeStyle.defaultStyle(),
+						trackSchemeGraph, trackSchemeFeatures, trackSchemeTagSets,
+						trackSchemeBranchGraph, model.getBranchGraphFeatureModel() );
 
 		final TrackSchemeOptions options  = TrackSchemeOptions.options().
 			inputTriggerConfig( keyconf ).
@@ -1182,8 +1212,19 @@ public class WindowManager
 		final FeatureModel< BranchVertex, BranchEdge > featureModel = model.getBranchGraphFeatureModel();
 		final FeatureModel< TrackSchemeVertex, TrackSchemeEdge > trackSchemeFeatures =
 				new FeatureModelAdapter<>( featureModel, vertexMap, edgeMap );
+
+		/*
+		 * Tag-sets for TrackScheme.
+		 */
+		final TagSetModel< BranchVertex, BranchEdge > tagSetModel = model.getBranchGraphTagSetModel();
+		final TagSetModel< TrackSchemeVertex, TrackSchemeEdge > trackSchemeTagSets =
+				new TagSetModelAdapter<>( tagSetModel, vertexMap, edgeMap );
+
+		/*
+		 * Special coloring.
+		 */
 		final BranchGraphFeaturesColorGenerator< TrackSchemeVertex, TrackSchemeEdge > colorGenerator =
-				new BranchGraphFeaturesColorGenerator<>( TrackSchemeStyle.defaultStyle(), trackSchemeGraph, trackSchemeFeatures );
+				new BranchGraphFeaturesColorGenerator<>( TrackSchemeStyle.defaultStyle(), trackSchemeGraph, trackSchemeFeatures, trackSchemeTagSets );
 
 		/*
 		 * TrackScheme options.

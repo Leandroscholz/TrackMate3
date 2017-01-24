@@ -32,13 +32,13 @@ public class FeatureAndTagDialog extends JDialog
 			@Override
 			public void tagSetCollectionUpdated()
 			{
-				model.getTagSetModel().clearTagSets( FeatureTarget.VERTEX );
-				model.getTagSetModel().declareTagSets( tagVertices.getTagSets(), FeatureTarget.VERTEX );
+				model.getGraphTagSetModel().clearTagSets( FeatureTarget.VERTEX );
+				model.getGraphTagSetModel().declareTagSets( tagVertices.getTagSets(), FeatureTarget.VERTEX );
 			}
 		} );
 		
 		final TagSetPanel tagEdges = new TagSetPanel( model.getGraph().edges() );
-		tagEdges.addUpdateListener( () -> model.getTagSetModel().declareTagSets( tagEdges.getTagSets(), FeatureTarget.EDGE ) );
+		tagEdges.addUpdateListener( () -> model.getGraphTagSetModel().declareTagSets( tagEdges.getTagSets(), FeatureTarget.EDGE ) );
 
 		final TagSetPanel tagBranchVertices = new TagSetPanel( model.getBranchGraph().vertices() );
 		// TODO capture them in branch tag set model

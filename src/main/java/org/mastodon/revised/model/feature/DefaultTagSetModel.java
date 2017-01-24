@@ -1,5 +1,6 @@
 package org.mastodon.revised.model.feature;
 
+import java.awt.Color;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -9,10 +10,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.mastodon.features.WithFeatures;
+import org.mastodon.revised.model.tagset.Tag;
 import org.mastodon.revised.model.tagset.TagSetFeature;
 
 public class DefaultTagSetModel< V extends WithFeatures< V >, E extends WithFeatures< E > > implements TagSetModel< V, E >
 {
+
 
 	private final Map< FeatureTarget, Map< String, TagSetFeature< ? > > > tagsets;
 
@@ -34,8 +37,7 @@ public class DefaultTagSetModel< V extends WithFeatures< V >, E extends WithFeat
 	}
 
 	@SuppressWarnings( "unchecked" )
-	@Override
-	public TagSetFeature< V > getVertexTagSet( final String key )
+	private TagSetFeature< V > getVertexTagSet( final String key )
 	{
 		if ( null == tagsets.get( FeatureTarget.VERTEX ) )
 			return null;
@@ -43,12 +45,20 @@ public class DefaultTagSetModel< V extends WithFeatures< V >, E extends WithFeat
 	}
 
 	@SuppressWarnings( "unchecked" )
-	@Override
-	public TagSetFeature< E > getEdgeTagSet( final String key )
+	private TagSetFeature< E > getEdgeTagSet( final String key )
 	{
 		if ( null == tagsets.get( FeatureTarget.EDGE ) )
 			return null;
 		return ( TagSetFeature< E > ) tagsets.get( FeatureTarget.EDGE ).get( key );
+	}
+
+	@Override
+	public TagSetFeature< ? > getTagSet( final String key )
+	{
+		TagSetFeature< ? > ts = getVertexTagSet( key );
+		if ( null == ts )
+			ts = getEdgeTagSet( key );
+		return ts;
 	}
 
 	@Override
@@ -105,6 +115,54 @@ public class DefaultTagSetModel< V extends WithFeatures< V >, E extends WithFeat
 				return "Unknown tag-set: " + key;
 		}
 		return tagset.getName();
+	}
+
+	@Override
+	public TagSetProjection< V > getVertexTagSetProjection( final String key )
+	{
+		final TagSetFeature< V > tagset = getVertexTagSet( key );
+		if ( null == tagset )
+			return null;
+		return new DefaultTagSetProjection< V >( tagset );
+	}
+
+	@Override
+	public TagSetProjection< E > getEdgeTagSetProjection( final String key )
+	{
+		final TagSetFeature< E > tagset = getEdgeTagSet( key );
+		if ( null == tagset )
+			return null;
+		return new DefaultTagSetProjection< E >( tagset );
+	}
+
+	private final class DefaultTagSetProjection< K extends WithFeatures< K > > implements TagSetProjection< K >
+	{
+
+		private final TagSetFeature< K > tagset;
+
+		public DefaultTagSetProjection( final TagSetFeature< K > tagset )
+		{
+			this.tagset = tagset;
+		}
+
+		@Override
+		public boolean isSet( final K obj )
+		{
+			return obj.feature( tagset ).isSet();
+		}
+
+		@Override
+		public Tag get( final K obj )
+		{
+			return obj.feature( tagset ).get();
+		}
+
+		@Override
+		public Color getMissingColor()
+		{
+			return tagset.getMissingColor();
+		}
+
 	}
 
 }

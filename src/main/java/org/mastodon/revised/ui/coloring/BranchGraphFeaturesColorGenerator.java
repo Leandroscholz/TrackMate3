@@ -5,6 +5,7 @@ import org.mastodon.graph.ReadOnlyGraph;
 import org.mastodon.graph.Vertex;
 import org.mastodon.revised.model.feature.FeatureModel;
 import org.mastodon.revised.model.feature.FeatureProjection;
+import org.mastodon.revised.model.feature.TagSetModel;
 import org.mastodon.revised.trackscheme.display.style.TrackSchemeStyle;
 import org.mastodon.revised.ui.coloring.ColorMode.EdgeColorMode;
 import org.mastodon.revised.ui.coloring.ColorMode.VertexColorMode;
@@ -33,9 +34,11 @@ public class BranchGraphFeaturesColorGenerator< BV extends Vertex< BE >, BE exte
 
 	public BranchGraphFeaturesColorGenerator(
 			final ColorMode colorMode,
-			final ReadOnlyGraph< BV, BE > branchGraph, final FeatureModel< BV, BE > branchFeatures )
+			final ReadOnlyGraph< BV, BE > branchGraph,
+			final FeatureModel< BV, BE > branchFeatures,
+			final TagSetModel< BV, BE > branchTagSets )
 	{
-		super( colorMode, branchGraph, branchFeatures );
+		super( colorMode, branchGraph, branchFeatures, branchTagSets );
 		this.branchFeatures = branchFeatures;
 	}
 
