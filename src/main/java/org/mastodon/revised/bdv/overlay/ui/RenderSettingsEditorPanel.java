@@ -33,9 +33,10 @@ import org.mastodon.revised.bdv.overlay.RenderSettings;
 import org.mastodon.revised.bdv.overlay.RenderSettings.UpdateListener;
 import org.mastodon.revised.model.feature.FeatureKeys;
 import org.mastodon.revised.model.feature.FeatureRangeCalculator;
-import org.mastodon.revised.ui.coloring.ColorModePicker;
+import org.mastodon.revised.model.feature.TagSetKeys;
 import org.mastodon.revised.ui.coloring.ColorMode.EdgeColorMode;
 import org.mastodon.revised.ui.coloring.ColorMode.VertexColorMode;
+import org.mastodon.revised.ui.coloring.ColorModePicker;
 
 import bdv.tools.brightness.SliderPanel;
 import bdv.tools.brightness.SliderPanelDouble;
@@ -97,7 +98,8 @@ public class RenderSettingsEditorPanel extends JPanel implements UpdateListener
 
 	public RenderSettingsEditorPanel( final RenderSettings renderSettings,
 			final FeatureKeys featureKeys, final FeatureRangeCalculator featureRangeCalculator,
-			final FeatureKeys branchGraphFeatureKeys, final FeatureRangeCalculator branchGraphFeatureRangeCalculator )
+			final FeatureKeys branchGraphFeatureKeys, final FeatureRangeCalculator branchGraphFeatureRangeCalculator,
+			final TagSetKeys tagSetKeys )
 	{
 		super( new GridBagLayout() );
 		this.renderSettings = renderSettings;
@@ -122,7 +124,8 @@ public class RenderSettingsEditorPanel extends JPanel implements UpdateListener
 		c.insets = new Insets( 5, 0, 0, 0 );
 		this.colorModePicker = new ColorModePicker( renderSettings,
 				featureKeys, featureRangeCalculator,
-				branchGraphFeatureKeys, branchGraphFeatureRangeCalculator );
+				branchGraphFeatureKeys, branchGraphFeatureRangeCalculator,
+				tagSetKeys );
 		colorModePicker.setFont( colorModePicker.getFont().deriveFont( 11f ) );
 		add( colorModePicker, c );
 

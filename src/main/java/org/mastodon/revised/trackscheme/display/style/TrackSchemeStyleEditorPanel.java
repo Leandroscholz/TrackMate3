@@ -30,10 +30,11 @@ import javax.swing.border.EmptyBorder;
 
 import org.mastodon.revised.model.feature.FeatureKeys;
 import org.mastodon.revised.model.feature.FeatureRangeCalculator;
+import org.mastodon.revised.model.feature.TagSetKeys;
 import org.mastodon.revised.trackscheme.display.style.TrackSchemeStyle.UpdateListener;
-import org.mastodon.revised.ui.coloring.ColorModePicker;
 import org.mastodon.revised.ui.coloring.ColorMode.EdgeColorMode;
 import org.mastodon.revised.ui.coloring.ColorMode.VertexColorMode;
+import org.mastodon.revised.ui.coloring.ColorModePicker;
 
 public class TrackSchemeStyleEditorPanel extends JPanel implements UpdateListener
 {
@@ -57,7 +58,8 @@ public class TrackSchemeStyleEditorPanel extends JPanel implements UpdateListene
 			final TrackSchemeStyle style, final FeatureKeys featureKeys,
 			final FeatureRangeCalculator featureRangeCalculator,
 			final FeatureKeys branchGraphFeatureKeys,
-			final FeatureRangeCalculator branchGraphFeatureRangeCalculator )
+			final FeatureRangeCalculator branchGraphFeatureRangeCalculator,
+			final TagSetKeys tagSetKeys )
 	{
 		super( new GridBagLayout() );
 		this.style = style;
@@ -77,7 +79,8 @@ public class TrackSchemeStyleEditorPanel extends JPanel implements UpdateListene
 
 		this.colorModeUI = new ColorModePicker( style,
 				featureKeys, featureRangeCalculator,
-				branchGraphFeatureKeys, branchGraphFeatureRangeCalculator );
+				branchGraphFeatureKeys, branchGraphFeatureRangeCalculator,
+				tagSetKeys );
 		colorModeUI.setFont( getFont().deriveFont( 11f ) );
 		c.gridwidth = 5;
 		add( colorModeUI, c );

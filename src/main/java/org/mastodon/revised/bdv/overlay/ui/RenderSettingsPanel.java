@@ -24,6 +24,7 @@ import org.mastodon.revised.bdv.overlay.RenderSettings;
 import org.mastodon.revised.bdv.overlay.RenderSettings.UpdateListener;
 import org.mastodon.revised.model.feature.FeatureKeys;
 import org.mastodon.revised.model.feature.FeatureRangeCalculator;
+import org.mastodon.revised.model.feature.TagSetKeys;
 
 /**
  * An editor and manager for BDV RenderSettings.
@@ -49,7 +50,8 @@ class RenderSettingsPanel extends JPanel
 
 	public RenderSettingsPanel( final MutableComboBoxModel< RenderSettings > model,
 			final FeatureKeys graphFeatureKeys, final FeatureRangeCalculator graphFeatureRangeCalculator,
-			final FeatureKeys branchGraphFeatureKeys, final FeatureRangeCalculator branchGraphFeatureRangeCalculator )
+			final FeatureKeys branchGraphFeatureKeys, final FeatureRangeCalculator branchGraphFeatureRangeCalculator,
+			final TagSetKeys tagSetKeys )
 	{
 
 		final JPanel contentPanel = new JPanel();
@@ -59,7 +61,8 @@ class RenderSettingsPanel extends JPanel
 		final RenderSettings targetSettings = RenderSettings.defaultStyle().copy( "target" );
 		final RenderSettingsEditorPanel renderSettingsPanel = new RenderSettingsEditorPanel( targetSettings,
 				graphFeatureKeys, graphFeatureRangeCalculator,
-				branchGraphFeatureKeys, branchGraphFeatureRangeCalculator );
+				branchGraphFeatureKeys, branchGraphFeatureRangeCalculator,
+				tagSetKeys );
 
 		this.comboBoxStyles = new JComboBox<>( model );
 		// Update common render settings when a settings is chosen in the menu.

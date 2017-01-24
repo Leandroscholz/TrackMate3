@@ -9,7 +9,9 @@ import org.mastodon.features.Feature;
 import org.mastodon.graph.ReadOnlyGraph;
 import org.mastodon.revised.model.AbstractModel;
 import org.mastodon.revised.model.feature.DefaultFeatureModel;
+import org.mastodon.revised.model.feature.DefaultTagSetModel;
 import org.mastodon.revised.model.feature.FeatureModel;
+import org.mastodon.revised.model.feature.TagSetModel;
 import org.mastodon.revised.model.mamut.branchgraph.BranchEdge;
 import org.mastodon.revised.model.mamut.branchgraph.BranchVertex;
 import org.mastodon.revised.model.mamut.branchgraph.ModelBranchGraph;
@@ -59,6 +61,7 @@ public class Model extends AbstractModel< ModelGraph, Spot, Link > implements Un
 
 	private final FeatureModel< BranchVertex, BranchEdge > branchGraphFeatureModel;
 
+	private final TagSetModel< Spot, Link > tagsetModel;
 
 	public Model()
 	{
@@ -70,6 +73,7 @@ public class Model extends AbstractModel< ModelGraph, Spot, Link > implements Un
 
 		graphFeatureModel = new DefaultFeatureModel<>();
 		branchGraphFeatureModel = new DefaultFeatureModel<>();
+		tagsetModel = new DefaultTagSetModel<>();
 
 		vertexFeaturesToSerialize = new ArrayList<>();
 		vertexFeaturesToSerialize.add( ModelFeatures.LABEL );
@@ -158,6 +162,11 @@ public class Model extends AbstractModel< ModelGraph, Spot, Link > implements Un
 	public FeatureModel< BranchVertex, BranchEdge > getBranchGraphFeatureModel()
 	{
 		return branchGraphFeatureModel;
+	}
+
+	public TagSetModel< Spot, Link > getTagSetModel()
+	{
+		return tagsetModel;
 	}
 
 }

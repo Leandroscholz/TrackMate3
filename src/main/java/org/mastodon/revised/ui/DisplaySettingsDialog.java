@@ -10,6 +10,7 @@ import org.mastodon.revised.bdv.overlay.ui.RenderSettingsChooser;
 import org.mastodon.revised.bdv.overlay.ui.RenderSettingsManager;
 import org.mastodon.revised.model.feature.FeatureKeys;
 import org.mastodon.revised.model.feature.FeatureRangeCalculator;
+import org.mastodon.revised.model.feature.TagSetKeys;
 import org.mastodon.revised.trackscheme.display.style.TrackSchemeStyleChooser;
 import org.mastodon.revised.trackscheme.display.style.TrackSchemeStyleManager;
 
@@ -25,7 +26,8 @@ public class DisplaySettingsDialog extends JDialog
 			final FeatureKeys graphFeatureKeys,
 			final FeatureRangeCalculator graphFeatureRangeCalculator,
 			final FeatureKeys branchGraphFeatureKeys,
-			final FeatureRangeCalculator branchGraphFeatureRangeCalculator )
+			final FeatureRangeCalculator branchGraphFeatureRangeCalculator,
+			final TagSetKeys tagSetKeys )
 	{
 		super( owner, "Display settings" );
 		setLayout( new BorderLayout() );
@@ -34,13 +36,15 @@ public class DisplaySettingsDialog extends JDialog
 		final RenderSettingsChooser bdvDisplaySettingsChooser =
 				new RenderSettingsChooser( renderSettingsManager,
 						graphFeatureKeys, graphFeatureRangeCalculator,
-						branchGraphFeatureKeys, branchGraphFeatureRangeCalculator );
+						branchGraphFeatureKeys, branchGraphFeatureRangeCalculator,
+						tagSetKeys );
 
 		// TrackScheme display settings.
 		final TrackSchemeStyleChooser trackSchemeStyleChooser =
 				new TrackSchemeStyleChooser( trackschemeStyleManager,
 						graphFeatureKeys, graphFeatureRangeCalculator,
-						branchGraphFeatureKeys, branchGraphFeatureRangeCalculator );
+						branchGraphFeatureKeys, branchGraphFeatureRangeCalculator,
+						tagSetKeys );
 
 		// Tabbed pane.
 		final JTabbedPane tabbedPane = new JTabbedPane();

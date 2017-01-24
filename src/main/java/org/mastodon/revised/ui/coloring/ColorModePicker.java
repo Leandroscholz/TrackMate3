@@ -33,6 +33,7 @@ import javax.swing.SwingConstants;
 import org.mastodon.revised.model.feature.FeatureKeys;
 import org.mastodon.revised.model.feature.FeatureRangeCalculator;
 import org.mastodon.revised.model.feature.FeatureTarget;
+import org.mastodon.revised.model.feature.TagSetKeys;
 import org.mastodon.revised.ui.coloring.ColorMode.EdgeColorMode;
 import org.mastodon.revised.ui.coloring.ColorMode.VertexColorMode;
 import org.mastodon.revised.ui.util.CategoryJComboBox;
@@ -87,11 +88,14 @@ public class ColorModePicker extends JPanel
 
 	private final FeatureKeys branchGraphFeatureKeys;
 
+	private final TagSetKeys tagSetKeys;
+
 	public ColorModePicker( final ColorMode current,
 			final FeatureKeys featureKeys,
 			final FeatureRangeCalculator featureRangeCalculator,
 			final FeatureKeys branchGraphFeatureKeys,
-			final FeatureRangeCalculator branchGraphFeatureRangeCalculator )
+			final FeatureRangeCalculator branchGraphFeatureRangeCalculator,
+			final TagSetKeys tagSetKeys )
 	{
 		super( new GridBagLayout() );
 		this.current = current;
@@ -99,6 +103,7 @@ public class ColorModePicker extends JPanel
 		this.featureRangeCalculator = featureRangeCalculator;
 		this.branchGraphFeatureKeys = branchGraphFeatureKeys;
 		this.branchGraphFeatureRangeCalculator = branchGraphFeatureRangeCalculator;
+		this.tagSetKeys = tagSetKeys;
 
 		/*
 		 * Current settings.
@@ -251,6 +256,7 @@ public class ColorModePicker extends JPanel
 				switch ( colorVertexChoices.getSelectedCategory() )
 				{
 				case FIXED:
+				case TAG:
 					muter1.enable( false );
 					break;
 				default:
@@ -259,7 +265,8 @@ public class ColorModePicker extends JPanel
 				}
 			}
 		} );
-		muter1.enable( colorVertexChoices.getSelectedCategory() != VertexColorMode.FIXED );
+		muter1.enable( colorVertexChoices.getSelectedCategory() != VertexColorMode.FIXED ||
+				colorVertexChoices.getSelectedCategory() != VertexColorMode.TAG );
 
 		/*
 		 * Edges.
@@ -380,6 +387,7 @@ public class ColorModePicker extends JPanel
 				switch ( colorEdgeChoices.getSelectedCategory() )
 				{
 				case FIXED:
+				case TAG:
 					muter2.enable( false );
 					break;
 				default:
@@ -388,7 +396,8 @@ public class ColorModePicker extends JPanel
 				}
 			}
 		} );
-		muter2.enable( colorEdgeChoices.getSelectedCategory() != EdgeColorMode.FIXED );
+		muter2.enable( colorEdgeChoices.getSelectedCategory() != EdgeColorMode.FIXED ||
+				colorEdgeChoices.getSelectedCategory() != EdgeColorMode.TAG );
 	}
 
 	/**
@@ -494,12 +503,17 @@ public class ColorModePicker extends JPanel
 		// Fixed.
 		final FeatureKeyWrapper fixedColor = new FeatureKeyWrapper( "Fixed color", VertexColorMode.FIXED );
 		items.put( VertexColorMode.FIXED, Collections.singleton( fixedColor ) );
+		itemNames.put( fixedColor, "Fixed color" );
 		categoryNames.put( VertexColorMode.FIXED, categoryName( VertexColorMode.FIXED ) );
 
 		// This vertex.
 		final Collection< FeatureKeyWrapper > vertexProjections = new ArrayList<>();
 		for ( final String projectionKey : featureKeys.getProjectionKeys( FeatureTarget.VERTEX ) )
-			vertexProjections.add( new FeatureKeyWrapper( projectionKey, VertexColorMode.VERTEX ) );
+		{
+			final FeatureKeyWrapper fk = new FeatureKeyWrapper( projectionKey, VertexColorMode.VERTEX );
+			vertexProjections.add( fk );
+			itemNames.put( fk, fk.featureKey );
+		}
 		if ( !vertexProjections.isEmpty() )
 		{
 			items.put( VertexColorMode.VERTEX, vertexProjections );
@@ -511,8 +525,13 @@ public class ColorModePicker extends JPanel
 		final Collection< FeatureKeyWrapper > outgoingEdgeProjections = new ArrayList<>();
 		for ( final String projectionKey : featureKeys.getProjectionKeys( FeatureTarget.EDGE ) )
 		{
-			incomingEdgeProjections.add( new FeatureKeyWrapper( projectionKey, VertexColorMode.INCOMING_EDGE ) );
-			outgoingEdgeProjections.add( new FeatureKeyWrapper( projectionKey, VertexColorMode.OUTGOING_EDGE ) );
+			final FeatureKeyWrapper fk1 = new FeatureKeyWrapper( projectionKey, VertexColorMode.INCOMING_EDGE );
+			incomingEdgeProjections.add( fk1 );
+			itemNames.put( fk1, fk1.featureKey );
+
+			final FeatureKeyWrapper fk2 = new FeatureKeyWrapper( projectionKey, VertexColorMode.OUTGOING_EDGE );
+			outgoingEdgeProjections.add( fk2 );
+			itemNames.put( fk2, fk2.featureKey );
 		}
 		if ( !incomingEdgeProjections.isEmpty() )
 		{
@@ -525,7 +544,11 @@ public class ColorModePicker extends JPanel
 		// Branch vertex.
 		final Collection< FeatureKeyWrapper > branchVertexProjections = new ArrayList<>();
 		for ( final String projectionKey : branchGraphFeatureKeys.getProjectionKeys( FeatureTarget.VERTEX ) )
-			branchVertexProjections.add( new FeatureKeyWrapper( projectionKey, VertexColorMode.BRANCH_VERTEX ) );
+		{
+			final FeatureKeyWrapper fk = new FeatureKeyWrapper( projectionKey, VertexColorMode.BRANCH_VERTEX );
+			branchVertexProjections.add( fk );
+			itemNames.put( fk, fk.featureKey );
+		}
 		if ( !branchVertexProjections.isEmpty() )
 		{
 			items.put( VertexColorMode.BRANCH_VERTEX, branchVertexProjections );
@@ -535,13 +558,31 @@ public class ColorModePicker extends JPanel
 		// Branch edge.
 		final Collection< FeatureKeyWrapper > branchEdgeProjections = new ArrayList<>();
 		for ( final String projectionKey : branchGraphFeatureKeys.getProjectionKeys( FeatureTarget.EDGE ) )
-			branchEdgeProjections.add( new FeatureKeyWrapper( projectionKey, VertexColorMode.BRANCH_EDGE ) );
+		{
+			final FeatureKeyWrapper fk = new FeatureKeyWrapper( projectionKey, VertexColorMode.BRANCH_EDGE );
+			branchEdgeProjections.add( fk );
+			itemNames.put( fk, fk.featureKey );
+		}
 		if ( !branchEdgeProjections.isEmpty() )
 		{
 			items.put( VertexColorMode.BRANCH_EDGE, branchEdgeProjections );
 			categoryNames.put( VertexColorMode.BRANCH_EDGE, categoryName( VertexColorMode.BRANCH_EDGE ) );
 		}
 
+		// Vertex tags.
+		final ArrayList< FeatureKeyWrapper > vertexTags = new ArrayList<>();
+		for ( final String tagsetKey : tagSetKeys.getTagSets( FeatureTarget.VERTEX ) )
+		{
+			final FeatureKeyWrapper fk = new FeatureKeyWrapper( tagsetKey, VertexColorMode.TAG );
+			vertexTags.add( fk );
+			itemNames.put( fk, tagSetKeys.getName( tagsetKey ) );
+		}
+		if ( !vertexTags.isEmpty() )
+		{
+			items.put( VertexColorMode.TAG, vertexTags );
+			categoryNames.put( VertexColorMode.TAG, categoryName( VertexColorMode.TAG ) );
+		}
+			
 		// Check if we can select the current mode.
 		final Collection< FeatureKeyWrapper > all = new ArrayList<>();
 		for ( final Collection< FeatureKeyWrapper > a : items.values() )
@@ -558,7 +599,10 @@ public class ColorModePicker extends JPanel
 				categoryNames.put( current.getVertexColorMode(), categoryName( current.getVertexColorMode() ) );
 			}
 			col.add( c );
-			itemNames.put( c, "Not computed: " + c.featureKey );
+			if ( current.getVertexColorMode() != VertexColorMode.TAG )
+				itemNames.put( c, "Not computed: " + c.featureKey );
+			else
+				itemNames.put( c, "Unknown tag: " + c.featureKey );
 		}
 
 		colorVertexChoices.resetContent( items, itemNames, categoryNames );
@@ -643,6 +687,20 @@ public class ColorModePicker extends JPanel
 			categoryNames.put( EdgeColorMode.BRANCH_VERTEX, categoryName( EdgeColorMode.BRANCH_VERTEX ) );
 		}
 
+		// Edge tags.
+		final ArrayList< FeatureKeyWrapper > edgeTags = new ArrayList<>();
+		for ( final String tagsetKey : tagSetKeys.getTagSets( FeatureTarget.EDGE ) )
+		{
+			final FeatureKeyWrapper fk = new FeatureKeyWrapper( tagsetKey, EdgeColorMode.TAG );
+			edgeTags.add( fk );
+			itemNames.put( fk, tagSetKeys.getName( tagsetKey ) );
+		}
+		if ( !edgeTags.isEmpty() )
+		{
+			items.put( EdgeColorMode.TAG, edgeTags );
+			categoryNames.put( EdgeColorMode.TAG, categoryName( EdgeColorMode.TAG ) );
+		}
+
 		// Check if we can select the current mode.
 		final Collection< FeatureKeyWrapper > all = new ArrayList<>();
 		for ( final Collection< FeatureKeyWrapper > a : items.values() )
@@ -659,12 +717,14 @@ public class ColorModePicker extends JPanel
 				categoryNames.put( current.getEdgeColorMode(), categoryName( current.getEdgeColorMode() ) );
 			}
 			col.add( c );
-			itemNames.put( c, "Not computed: " + c.featureKey );
+			if ( current.getEdgeColorMode() != EdgeColorMode.TAG )
+				itemNames.put( c, "Not computed: " + c.featureKey );
+			else
+				itemNames.put( c, "Unknown tag: " + c.featureKey );
 		}
 
 		colorEdgeChoices.resetContent( items, itemNames, categoryNames );
 		colorEdgeChoices.setSelectedItem( c );
-
 	}
 
 	private static final String categoryName( final EdgeColorMode colorMode )
@@ -683,6 +743,8 @@ public class ColorModePicker extends JPanel
 			return "Source spot feature";
 		case TARGET_VERTEX:
 			return "Target spot feature";
+		case TAG:
+			return "Link tag";
 		default:
 			return colorMode.toString();
 		}
@@ -704,6 +766,8 @@ public class ColorModePicker extends JPanel
 			return "Outoing link feature";
 		case VERTEX:
 			return "Spot feature";
+		case TAG:
+			return "Spot tag";
 		default:
 			return colorMode.toString();
 		}
@@ -719,12 +783,6 @@ public class ColorModePicker extends JPanel
 		{
 			this.featureKey = featureKey;
 			this.category = category;
-		}
-
-		@Override
-		public String toString()
-		{
-			return featureKey;
 		}
 
 		@Override
@@ -839,13 +897,17 @@ public class ColorModePicker extends JPanel
 		colorEdgeChoices.setEnabled( enabled );
 		colorVertexChoices.setEnabled( enabled );
 		// Don't enable for fixed colors.
-		final boolean vertexEnable = enabled && ( colorVertexChoices.getSelectedCategory() != VertexColorMode.FIXED );
+		final boolean vertexEnable = enabled &&
+				( colorVertexChoices.getSelectedCategory() != VertexColorMode.FIXED ||
+						colorVertexChoices.getSelectedCategory() != VertexColorMode.TAG );
 		colorMapPainterVertex.setEnabled( vertexEnable );
 		cmapVertex.setEnabled( vertexEnable );
 		minVertex.setEnabled( vertexEnable );
 		maxVertex.setEnabled( vertexEnable );
 		autoscaleVertex.setEnabled( vertexEnable );
-		final boolean edgeEnable = enabled && ( colorEdgeChoices.getSelectedCategory() != EdgeColorMode.FIXED );
+		final boolean edgeEnable = enabled &&
+				( colorEdgeChoices.getSelectedCategory() != EdgeColorMode.FIXED ||
+						colorEdgeChoices.getSelectedCategory() != EdgeColorMode.TAG );
 		colorMapPainterEdge.setEnabled( edgeEnable );
 		cmapEdge.setEnabled( edgeEnable );
 		minEdge.setEnabled( edgeEnable );

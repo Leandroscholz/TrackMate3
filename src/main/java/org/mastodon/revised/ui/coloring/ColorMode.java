@@ -44,7 +44,11 @@ public interface ColorMode
 		 * target branch vertex of the branch edge they are linked to in the
 		 * branch graph.
 		 */
-		BRANCH_VERTEX;
+		BRANCH_VERTEX,
+		/**
+		 * Edges are colored using a tag.
+		 */
+		TAG;
 	}
 
 	/**
@@ -82,7 +86,12 @@ public interface ColorMode
 		 * Vertices have a color determined by a numerical feature of the branch
 		 * vertex they link to in the branch graph.
 		 */
-		BRANCH_VERTEX;
+		BRANCH_VERTEX,
+		/**
+		 * Vertices are colored using a tag.
+		 */
+		TAG;
+
 	}
 
 	/*

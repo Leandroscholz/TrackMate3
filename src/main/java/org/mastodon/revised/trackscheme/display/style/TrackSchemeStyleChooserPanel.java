@@ -27,6 +27,7 @@ import org.mastodon.adapter.SelectionAdapter;
 import org.mastodon.graph.GraphIdBimap;
 import org.mastodon.revised.model.feature.FeatureKeys;
 import org.mastodon.revised.model.feature.FeatureRangeCalculator;
+import org.mastodon.revised.model.feature.TagSetKeys;
 import org.mastodon.revised.trackscheme.TrackSchemeEdge;
 import org.mastodon.revised.trackscheme.TrackSchemeEdgeBimap;
 import org.mastodon.revised.trackscheme.TrackSchemeGraph;
@@ -76,7 +77,8 @@ class TrackSchemeStyleChooserPanel extends JPanel
 			final FeatureKeys featureKeys,
 			final FeatureRangeCalculator featureRangeCalculator,
 			final FeatureKeys branchGraphFeatureKeys,
-			final FeatureRangeCalculator branchGraphFeatureRangeCalculator )
+			final FeatureRangeCalculator branchGraphFeatureRangeCalculator,
+			final TagSetKeys tagSetKeys)
 	{
 		final Examples ex = DummyGraph.Examples.CELEGANS;
 		final DummyGraph example = ex.getGraph();
@@ -156,7 +158,8 @@ class TrackSchemeStyleChooserPanel extends JPanel
 		final TrackSchemeStyleEditorPanel editorPanel = new TrackSchemeStyleEditorPanel(
 				editedStyle,
 				featureKeys, featureRangeCalculator,
-				branchGraphFeatureKeys, branchGraphFeatureRangeCalculator );
+				branchGraphFeatureKeys, branchGraphFeatureRangeCalculator,
+				tagSetKeys);
 		contentPanel.add( editorPanel, BorderLayout.SOUTH );
 
 		panelPreview.setPreferredSize( new Dimension( 300, 250 ) );

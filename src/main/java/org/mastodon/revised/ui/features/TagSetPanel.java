@@ -16,6 +16,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.geom.RoundRectangle2D;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -38,12 +39,11 @@ import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 
 import org.mastodon.collection.RefCollection;
-import org.mastodon.features.WithFeatures;
 import org.mastodon.revised.model.tagset.Tag;
 import org.mastodon.revised.model.tagset.TagSetFeature;
 import org.mastodon.revised.ui.util.ColorMap;
 
-public class TagSetPanel< O extends WithFeatures< O > > extends JPanel
+public class TagSetPanel extends JPanel
 {
 
 	private static final long serialVersionUID = 1L;
@@ -79,13 +79,16 @@ public class TagSetPanel< O extends WithFeatures< O > > extends JPanel
 
 	private final JColorChooser colorChooser;
 
-	private final RefCollection< O > pool;
+	private final RefCollection< ? > pool;
 
-	private final DefaultComboBoxModel< TagSetFeature< O > > model;
+	private final DefaultComboBoxModel< TagSetFeature< ? > > model;
 
-	public TagSetPanel( final RefCollection< O > pool )
+	private final ArrayList< UpdateListener > listeners;
+
+	public TagSetPanel( final RefCollection< ? > pool )
 	{
 		this.pool = pool;
+		this.listeners = new ArrayList<>();
 		setLayout( new BorderLayout( 0, 0 ) );
 		colorChooser = new JColorChooser();
 
@@ -109,25 +112,32 @@ public class TagSetPanel< O extends WithFeatures< O > > extends JPanel
 		horizontalBox.add( hs2 );
 
 		this.model = new DefaultComboBoxModel<>();
-		final JComboBox< TagSetFeature< O > > comboBoxTagSets = new JComboBox<>( model );
+		final JComboBox< TagSetFeature< ? > > comboBoxTagSets = new JComboBox<>( model );
 		comboBoxTagSets.setFont( getFont().deriveFont( Font.BOLD ) );
 		comboBoxTagSets.addActionListener( e -> update() );
 		horizontalBox.add( comboBoxTagSets );
 		comboBoxTagSets.setEditable( true );
-		comboBoxTagSets.setEditor( new MyComboBoxEditor() );
+		final MyComboBoxEditor editor = new MyComboBoxEditor();
+		comboBoxTagSets.setEditor( editor );
 
 		final JButton btnAdd = new JButton( ADD_ICON );
-		btnAdd.addActionListener( e -> addTagSet() );
+		btnAdd.addActionListener( new ActionListener()
+		{
+			@Override
+			public void actionPerformed( final ActionEvent e )
+			{
+				addTagSet();
+				editor.editorPane.field.requestFocusInWindow();
+			}
+		} );
 		btnAdd.setPreferredSize( new Dimension( 25, 30 ) );
 		btnAdd.setContentAreaFilled( false );
-		btnAdd.setBorderPainted( false );
 		horizontalBox.add( btnAdd );
 
 		final JButton btnRemove = new JButton( REMOVE_ICON );
 		btnRemove.addActionListener( e -> removeTagSet() );
 		btnRemove.setPreferredSize( new Dimension( 25, 25 ) );
 		btnRemove.setContentAreaFilled( false );
-		btnRemove.setBorderPainted( false );
 		horizontalBox.add( btnRemove );
 	}
 
@@ -138,8 +148,7 @@ public class TagSetPanel< O extends WithFeatures< O > > extends JPanel
 		final GridBagLayout layout = new GridBagLayout();
 		panelTags.setLayout( layout );
 
-		@SuppressWarnings( "unchecked" )
-		final TagSetFeature< O > tagset = ( TagSetFeature< O > ) model.getSelectedItem();
+		final TagSetFeature< ? > tagset = ( TagSetFeature< ? > ) model.getSelectedItem();
 		if ( null == tagset )
 			return;
 
@@ -246,7 +255,6 @@ public class TagSetPanel< O extends WithFeatures< O > > extends JPanel
 				final JButton btnRemove = new JButton( SMALL_REMOVE_ICON );
 				btnRemove.setSize( 25, 25 );
 				btnRemove.setContentAreaFilled( false );
-				btnRemove.setBorderPainted( false );
 				btnRemove.addActionListener( new ActionListener()
 				{
 					@Override
@@ -268,7 +276,6 @@ public class TagSetPanel< O extends WithFeatures< O > > extends JPanel
 
 		final JButton btnAdd = new JButton( SMALL_ADD_ICON );
 		btnAdd.setSize( 25, 25 );
-		btnAdd.setBorderPainted( false );
 		btnAdd.setContentAreaFilled( false );
 		btnAdd.addActionListener( new ActionListener()
 		{
@@ -289,22 +296,43 @@ public class TagSetPanel< O extends WithFeatures< O > > extends JPanel
 
 	private void removeTagSet()
 	{
-		@SuppressWarnings( "unchecked" )
-		final TagSetFeature< O > tagset = ( TagSetFeature< O > ) model.getSelectedItem();
+		final TagSetFeature< ? > tagset = ( TagSetFeature< ? > ) model.getSelectedItem();
 		model.removeElement( tagset );
 		update();
-		// TODO handle removing of tag sets.
+		notifyListeners();
 	}
 
 	private void addTagSet()
 	{
-		@SuppressWarnings( "unchecked" )
-		final TagSetFeature< O > current = ( TagSetFeature< O > ) model.getSelectedItem();
+		final TagSetFeature< ? > current = ( TagSetFeature< ? > ) model.getSelectedItem();
 		final String name = ( null == current ) ? "Tag set" : makeNewName( current.getName() );
-		final TagSetFeature< O > tagset = new TagSetFeature<>( TAG_KEY_GENERATOR.next(), name, pool );
+		@SuppressWarnings( { "rawtypes", "unchecked" } )
+		final TagSetFeature< ? > tagset = new TagSetFeature( TAG_KEY_GENERATOR.next(), name, pool );
 		model.addElement( tagset );
 		model.setSelectedItem( tagset );
 		update();
+		notifyListeners();
+	}
+
+	private void notifyListeners()
+	{
+		for ( final UpdateListener l : listeners )
+			l.tagSetCollectionUpdated();
+	}
+
+	public synchronized boolean addUpdateListener( final UpdateListener l )
+	{
+		if ( !listeners.contains( l ) )
+		{
+			listeners.add( l );
+			return true;
+		}
+		return false;
+	}
+
+	public synchronized boolean removeUpdateListener( final UpdateListener l )
+	{
+		return listeners.remove( l );
 	}
 
 	private final String makeNewName( final String name )
@@ -412,8 +440,7 @@ public class TagSetPanel< O extends WithFeatures< O > > extends JPanel
 			final Object obj = getItem();
 			if ( obj == null )
 				return;
-			@SuppressWarnings( "unchecked" )
-			final TagSetFeature< O > tsf = ( TagSetFeature< O > ) obj;
+			final TagSetFeature< ? > tsf = ( TagSetFeature< ? > ) obj;
 			tsf.setName( editorPane.getText() );
 		}
 
@@ -512,5 +539,18 @@ public class TagSetPanel< O extends WithFeatures< O > > extends JPanel
 			field.removeActionListener( listener );
 		}
 
+	}
+
+	public static interface UpdateListener
+	{
+		public void tagSetCollectionUpdated();
+	}
+
+	public Collection< TagSetFeature< ? > > getTagSets()
+	{
+		final Collection< TagSetFeature< ? > > tagsets = new ArrayList<>();
+		for ( int j = 0; j < model.getSize(); j++ )
+			tagsets.add( model.getElementAt( j ) );
+		return tagsets;
 	}
 }

@@ -12,6 +12,7 @@ import javax.swing.MutableComboBoxModel;
 
 import org.mastodon.revised.model.feature.FeatureKeys;
 import org.mastodon.revised.model.feature.FeatureRangeCalculator;
+import org.mastodon.revised.model.feature.TagSetKeys;
 
 /**
  * @author Jean-Yves Tinevez
@@ -28,7 +29,8 @@ public class TrackSchemeStyleChooser
 	public TrackSchemeStyleChooser(
 			final TrackSchemeStyleManager trackschemeStyleManager,
 			final FeatureKeys graphFeatureKeys, final FeatureRangeCalculator graphFeatureRangeCalculator,
-			final FeatureKeys branchGraphFeatureKeys, final FeatureRangeCalculator branchGraphFeatureRangeCalculator )
+			final FeatureKeys branchGraphFeatureKeys, final FeatureRangeCalculator branchGraphFeatureRangeCalculator,
+			final TagSetKeys tagSetKeys )
 	{
 
 		this.styleManager = trackschemeStyleManager;
@@ -38,7 +40,8 @@ public class TrackSchemeStyleChooser
 
 		this.panel = new TrackSchemeStyleChooserPanel( model,
 				graphFeatureKeys, graphFeatureRangeCalculator,
-				branchGraphFeatureKeys, branchGraphFeatureRangeCalculator );
+				branchGraphFeatureKeys, branchGraphFeatureRangeCalculator,
+				tagSetKeys );
 		panel.buttonDeleteStyle.addActionListener( new ActionListener()
 		{
 			@Override

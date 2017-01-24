@@ -7,13 +7,11 @@ import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 
 import org.mastodon.revised.model.feature.FeatureComputerService;
-import org.mastodon.revised.model.mamut.Link;
+import org.mastodon.revised.model.feature.FeatureTarget;
 import org.mastodon.revised.model.mamut.Model;
-import org.mastodon.revised.model.mamut.Spot;
-import org.mastodon.revised.model.mamut.branchgraph.BranchEdge;
-import org.mastodon.revised.model.mamut.branchgraph.BranchVertex;
 import org.mastodon.revised.ui.features.FeatureComputersPanel;
 import org.mastodon.revised.ui.features.TagSetPanel;
+import org.mastodon.revised.ui.features.TagSetPanel.UpdateListener;
 
 public class FeatureAndTagDialog extends JDialog
 {
@@ -27,11 +25,26 @@ public class FeatureAndTagDialog extends JDialog
 		// Feature computing panel.
 		final FeatureComputersPanel featureComputersPanel = new FeatureComputersPanel( computerService, model );
 
-		// Tag sets panels.
-		final TagSetPanel< Spot > tagVertices = new TagSetPanel<>( model.getGraph().vertices() );
-		final TagSetPanel< Link > tagEdges = new TagSetPanel<>( model.getGraph().edges() );
-		final TagSetPanel< BranchVertex > tagBranchVertices = new TagSetPanel<>( model.getBranchGraph().vertices() );
-		final TagSetPanel< BranchEdge > tagBranchEdge = new TagSetPanel<>( model.getBranchGraph().edges() );
+
+		final TagSetPanel tagVertices = new TagSetPanel( model.getGraph().vertices() );
+		tagVertices.addUpdateListener( new UpdateListener()
+		{
+			@Override
+			public void tagSetCollectionUpdated()
+			{
+				model.getTagSetModel().clearTagSets( FeatureTarget.VERTEX );
+				model.getTagSetModel().declareTagSets( tagVertices.getTagSets(), FeatureTarget.VERTEX );
+			}
+		} );
+		
+		final TagSetPanel tagEdges = new TagSetPanel( model.getGraph().edges() );
+		tagEdges.addUpdateListener( () -> model.getTagSetModel().declareTagSets( tagEdges.getTagSets(), FeatureTarget.EDGE ) );
+
+		final TagSetPanel tagBranchVertices = new TagSetPanel( model.getBranchGraph().vertices() );
+		// TODO capture them in branch tag set model
+
+		final TagSetPanel tagBranchEdge = new TagSetPanel( model.getBranchGraph().edges() );
+		// TODO capture them in branch tag set model
 
 		// Tabbed pane.
 		final JTabbedPane tabbedPane = new JTabbedPane( JTabbedPane.TOP );

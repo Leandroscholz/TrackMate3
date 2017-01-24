@@ -115,7 +115,7 @@ public class MainWindow extends JFrame
 		buttonsPanel.add( branchTrackSchemeButton );
 		buttonsPanel.add( Box.createVerticalStrut( 20 ) );
 
-		this.featureComputationButton = new JButton( "feature computation" );
+		this.featureComputationButton = new JButton( "features and tags" );
 		buttonsPanel.add( featureComputationButton );
 
 		this.displaySettingsButton = new JButton( "display settings" );
@@ -219,7 +219,8 @@ public class MainWindow extends JFrame
 						windowManager.getModel().getGraphFeatureModel(),
 						graphFeatureRangeCalculator,
 						windowManager.getModel().getBranchGraphFeatureModel(),
-						branchGraphFeatureRangeCalculator );
+						branchGraphFeatureRangeCalculator,
+						windowManager.getModel().getTagSetModel() );
 		displaySettingsDialog.setSize( 480, 1000 );
 
 		final ActionListener[] listeners = displaySettingsButton.getActionListeners();
