@@ -12,7 +12,6 @@ import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.Box;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
@@ -21,12 +20,12 @@ import javax.swing.WindowConstants;
 
 import org.mastodon.revised.bdv.overlay.ui.RenderSettingsManager;
 import org.mastodon.revised.model.feature.DefaultFeatureRangeCalculator;
+import org.mastodon.revised.model.feature.FeatureComputerService;
 import org.mastodon.revised.model.feature.FeatureRangeCalculator;
 import org.mastodon.revised.model.mamut.Model;
-import org.mastodon.revised.model.mamut.feature.DefaultMamutFeatureComputerService;
 import org.mastodon.revised.trackscheme.display.style.TrackSchemeStyleManager;
 import org.mastodon.revised.ui.DisplaySettingsDialog;
-import org.mastodon.revised.ui.features.FeatureComputersPanel;
+import org.mastodon.revised.ui.FeatureAndTagDialog;
 import org.mastodon.revised.ui.util.FileChooser;
 import org.mastodon.revised.ui.util.XmlFileFilter;
 import org.scijava.ui.behaviour.io.InputTriggerConfig;
@@ -230,12 +229,11 @@ public class MainWindow extends JFrame
 		displaySettingsButton.addActionListener(
 				new ToggleDialogAction( "display settings", displaySettingsDialog ) );
 
-		final Dialog featureComputationDialog = new JDialog( this );
-		final DefaultMamutFeatureComputerService featureComputerService = new DefaultMamutFeatureComputerService();
-		windowManager.context.inject( featureComputerService );
-		featureComputerService.initialize();
-		featureComputationDialog.add( new FeatureComputersPanel( featureComputerService, model ) );
+		@SuppressWarnings( "unchecked" )
+		final FeatureComputerService< Model > featureComputerService = windowManager.context.getService( FeatureComputerService.class );
+		final Dialog featureComputationDialog = new FeatureAndTagDialog( this, windowManager.getModel(), featureComputerService );
 		featureComputationDialog.setSize( 400, 400 );
+
 		featureComputationButton.addActionListener( new ToggleDialogAction( "feature computation", featureComputationDialog ) );
 	}
 
