@@ -27,18 +27,18 @@ public class DisplaySettingsDialog extends JDialog
 			final FeatureKeys branchGraphFeatureKeys,
 			final FeatureRangeCalculator branchGraphFeatureRangeCalculator )
 	{
-		setTitle( "Display settings" );
+		super( owner, "Display settings" );
 		setLayout( new BorderLayout() );
 
 		// BDV display settings.
 		final RenderSettingsChooser bdvDisplaySettingsChooser =
-				new RenderSettingsChooser( owner, renderSettingsManager,
+				new RenderSettingsChooser( renderSettingsManager,
 						graphFeatureKeys, graphFeatureRangeCalculator,
 						branchGraphFeatureKeys, branchGraphFeatureRangeCalculator );
 
 		// TrackScheme display settings.
 		final TrackSchemeStyleChooser trackSchemeStyleChooser =
-				new TrackSchemeStyleChooser( owner, trackschemeStyleManager,
+				new TrackSchemeStyleChooser( trackschemeStyleManager,
 						graphFeatureKeys, graphFeatureRangeCalculator,
 						branchGraphFeatureKeys, branchGraphFeatureRangeCalculator );
 
@@ -47,8 +47,7 @@ public class DisplaySettingsDialog extends JDialog
 		tabbedPane.add( "bdv", bdvDisplaySettingsChooser.getPanel() );
 		tabbedPane.add( "trackscheme", trackSchemeStyleChooser.getPanel() );
 
-		add( tabbedPane, BorderLayout.CENTER );
-
+		getContentPane().add( tabbedPane, BorderLayout.CENTER );
 		pack();
 	}
 }

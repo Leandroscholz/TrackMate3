@@ -7,7 +7,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.MutableComboBoxModel;
 
@@ -27,7 +26,6 @@ public class TrackSchemeStyleChooser
 	private final MutableComboBoxModel< TrackSchemeStyle > model;
 
 	public TrackSchemeStyleChooser(
-			final JFrame owner,
 			final TrackSchemeStyleManager trackschemeStyleManager,
 			final FeatureKeys graphFeatureKeys, final FeatureRangeCalculator graphFeatureRangeCalculator,
 			final FeatureKeys branchGraphFeatureKeys, final FeatureRangeCalculator branchGraphFeatureRangeCalculator )
@@ -38,7 +36,7 @@ public class TrackSchemeStyleChooser
 		if ( model.getSize() > 0 )
 			model.setSelectedItem( model.getElementAt( 0 ) );
 
-		this.panel = new TrackSchemeStyleChooserPanel( owner, model,
+		this.panel = new TrackSchemeStyleChooserPanel( model,
 				graphFeatureKeys, graphFeatureRangeCalculator,
 				branchGraphFeatureKeys, branchGraphFeatureRangeCalculator );
 		panel.buttonDeleteStyle.addActionListener( new ActionListener()

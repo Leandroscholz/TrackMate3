@@ -7,7 +7,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.MutableComboBoxModel;
@@ -30,14 +29,14 @@ public class RenderSettingsChooser
 
 	private final RenderSettingsManager renderSettingsManager;
 
-	public RenderSettingsChooser( final JFrame owner, final RenderSettingsManager renderSettingsManager,
+	public RenderSettingsChooser( final RenderSettingsManager renderSettingsManager,
 			final FeatureKeys graphFeatureKeys, final FeatureRangeCalculator graphFeatureRangeCalculator,
 			final FeatureKeys branchGraphFeatureKeys, final FeatureRangeCalculator branchGraphFeatureRangeCalculator )
 	{
 		this.renderSettingsManager = renderSettingsManager;
 		// Give the choose its own render settings instance.
 		this.model = new DefaultComboBoxModel<>( renderSettingsManager.getRenderSettings() );
-		panel = new RenderSettingsPanel( owner, model,
+		panel = new RenderSettingsPanel( model,
 				graphFeatureKeys, graphFeatureRangeCalculator,
 				branchGraphFeatureKeys, branchGraphFeatureRangeCalculator );
 		panel.buttonDeleteStyle.addActionListener( new ActionListener()

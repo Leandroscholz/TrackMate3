@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Font;
-import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -48,7 +47,7 @@ class RenderSettingsPanel extends JPanel
 
 	JComboBox< RenderSettings > comboBoxStyles;
 
-	public RenderSettingsPanel( final Frame owner, final MutableComboBoxModel< RenderSettings > model,
+	public RenderSettingsPanel( final MutableComboBoxModel< RenderSettings > model,
 			final FeatureKeys graphFeatureKeys, final FeatureRangeCalculator graphFeatureRangeCalculator,
 			final FeatureKeys branchGraphFeatureKeys, final FeatureRangeCalculator branchGraphFeatureRangeCalculator )
 	{

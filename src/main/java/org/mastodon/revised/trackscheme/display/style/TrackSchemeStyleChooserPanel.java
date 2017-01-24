@@ -3,7 +3,6 @@ package org.mastodon.revised.trackscheme.display.style;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -73,7 +72,6 @@ class TrackSchemeStyleChooserPanel extends JPanel
 	JComboBox< TrackSchemeStyle > comboBoxStyles;
 
 	public TrackSchemeStyleChooserPanel(
-			final Frame owner,
 			final MutableComboBoxModel< TrackSchemeStyle > model,
 			final FeatureKeys featureKeys,
 			final FeatureRangeCalculator featureRangeCalculator,
