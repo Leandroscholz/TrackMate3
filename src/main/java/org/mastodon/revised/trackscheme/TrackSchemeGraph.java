@@ -14,7 +14,7 @@ import org.mastodon.graph.GraphListener;
 import org.mastodon.graph.ListenableReadOnlyGraph;
 import org.mastodon.graph.Vertex;
 import org.mastodon.graph.ref.AbstractEdgePool;
-import org.mastodon.graph.ref.AbstractEdgePool.AbstractEdgeLayout;
+import org.mastodon.graph.ref.AbstractNonSimpleEdgePool.AbstractEdgeLayout;
 import org.mastodon.graph.ref.AbstractVertexPool;
 import org.mastodon.graph.ref.AbstractVertexPool.AbstractVertexLayout;
 import org.mastodon.graph.ref.GraphImp;
