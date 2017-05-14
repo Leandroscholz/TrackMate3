@@ -1,7 +1,7 @@
 package org.mastodon.revised.model.mamut;
 
-import org.mastodon.graph.ref.AbstractEdgePool;
 import org.mastodon.graph.ref.AbstractListenableEdgePool;
+import org.mastodon.graph.ref.AbstractSimpleEdgePool;
 import org.mastodon.graph.ref.AbstractVertex;
 import org.mastodon.pool.ByteMappedElement;
 import org.mastodon.pool.ByteMappedElementArray;
@@ -11,7 +11,7 @@ public class LinkPool extends AbstractListenableEdgePool< Link, Spot, ByteMapped
 {
 	LinkPool( final int initialCapacity, final SpotPool vertexPool )
 	{
-		super( initialCapacity, AbstractEdgePool.layout, Link.class, SingleArrayMemPool.factory( ByteMappedElementArray.factory ), vertexPool );
+		super( initialCapacity, AbstractSimpleEdgePool.layout, Link.class, SingleArrayMemPool.factory( ByteMappedElementArray.factory ), vertexPool );
 	}
 
 	@Override

@@ -1,7 +1,7 @@
 package org.mastodon.revised.model.mamut;
 
 import org.mastodon.graph.io.GraphSerializer;
-import org.mastodon.graph.ref.AbstractEdgePool;
+import org.mastodon.graph.ref.AbstractSimpleEdgePool;
 import org.mastodon.graph.ref.AbstractVertexPool;
 import org.mastodon.pool.PoolObjectAttributeSerializer;
 
@@ -55,8 +55,8 @@ class ModelSerializer implements GraphSerializer< Spot, Link >
 		public LinkSerializer()
 		{
 			super(
-					AbstractEdgePool.layout.getSizeInBytes(),
-					LinkPool.layout.getSizeInBytes() - AbstractEdgePool.layout.getSizeInBytes() );
+					AbstractSimpleEdgePool.layout.getSizeInBytes(),
+					LinkPool.layout.getSizeInBytes() - AbstractSimpleEdgePool.layout.getSizeInBytes() );
 		}
 
 		@Override
