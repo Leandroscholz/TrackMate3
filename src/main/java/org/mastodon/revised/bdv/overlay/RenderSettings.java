@@ -1,5 +1,7 @@
 package org.mastodon.revised.bdv.overlay;
 
+import java.awt.BasicStroke;
+import java.awt.Stroke;
 import java.util.ArrayList;
 
 public class RenderSettings
@@ -24,6 +26,11 @@ public class RenderSettings
 	public static final boolean DEFAULT_IS_FOCUS_LIMIT_RELATIVE = true;
 	public static final double DEFAULT_ELLIPSOID_FADE_DEPTH = 0.2;
 	public static final double DEFAULT_POINT_FADE_DEPTH = 0.2;
+	public static final Stroke DEFAULT_SPOT_STROKE  = new BasicStroke();
+	public static final Stroke DEFAULT_SPOT_HIGHLIGHT_STROKE  = new BasicStroke( 4f );
+	public static final Stroke DEFAULT_SPOT_FOCUS_STROKE  = new BasicStroke( 2f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1f, new float[] { 8f, 3f }, 0 );
+	public static final Stroke DEFAULT_LINK_STROKE  = new BasicStroke();
+	public static final Stroke DEFAULT_LINK_HIGHLIGHT_STROKE  = new BasicStroke( 3f );
 
 	public interface UpdateListener
 	{
@@ -49,6 +56,11 @@ public class RenderSettings
 		isFocusLimitViewRelative = DEFAULT_IS_FOCUS_LIMIT_RELATIVE;
 		ellipsoidFadeDepth = DEFAULT_ELLIPSOID_FADE_DEPTH;
 		pointFadeDepth = DEFAULT_POINT_FADE_DEPTH;
+		spotStroke = DEFAULT_SPOT_STROKE;
+		spotFocusStroke = DEFAULT_SPOT_FOCUS_STROKE;
+		spotHighlightStroke = DEFAULT_SPOT_HIGHLIGHT_STROKE;
+		linkStroke = DEFAULT_LINK_STROKE;
+		linkHighlightStroke = DEFAULT_LINK_HIGHLIGHT_STROKE;
 
 		updateListeners = new ArrayList< UpdateListener >();
 	}
@@ -203,6 +215,31 @@ public class RenderSettings
 	 * they are fully opaque, then their alpha value goes to 0 linearly.
 	 */
 	private double pointFadeDepth;
+
+	/**
+	 * The stroke used to paint the spot outlines.
+	 */
+	private Stroke spotStroke;
+
+	/**
+	 * The stroke used to paint the selected spot outlines.
+	 */
+	private Stroke spotHighlightStroke;
+
+	/**
+	 * The stroke used to paint the focused spot outlines.
+	 */
+	private Stroke spotFocusStroke;
+
+	/**
+	 * The stroke used to paint links.
+	 */
+	private Stroke linkStroke;
+
+	/**
+	 * The stroke used to paint highlighted links.
+	 */
+	private Stroke linkHighlightStroke;
 
 	/**
 	 * Get the antialiasing setting.
@@ -665,6 +702,132 @@ public class RenderSettings
 		if ( this.pointFadeDepth != pointFadeDepth )
 		{
 			this.pointFadeDepth = pointFadeDepth;
+			notifyListeners();
+		}
+	}
+
+
+	/**
+	 * Gets the stroke used to paint the spot outlines.
+	 *
+	 * @return the stroke used to paint the spot outlines.
+	 */
+	public Stroke getSpotStroke()
+	{
+		return spotStroke;
+	}
+
+	/**
+	 * Sets the stroke used to paint the spot outlines.
+	 *
+	 * @param spotStroke
+	 *            the stroke used to paint the spot outlines.
+	 */
+	public synchronized void setSpotStroke( final Stroke spotStroke )
+	{
+		if ( this.spotStroke != spotStroke )
+		{
+			this.spotStroke = spotStroke;
+			notifyListeners();
+		}
+	}
+
+	/**
+	 * Gets the stroke used to paint the focused spot outlines.
+	 *
+	 * @return the stroke used to paint the focused spot outlines.
+	 */
+	public Stroke getSpotFocusStroke()
+	{
+		return spotFocusStroke;
+	}
+
+	/**
+	 * Sets the stroke used to paint the focused spot outlines.
+	 *
+	 * @param spotFocusStroke
+	 *            the stroke used to paint the focused spot outlines.
+	 */
+	public synchronized void setSpotFocusStroke( final Stroke spotFocusStroke )
+	{
+		if ( this.spotFocusStroke != spotFocusStroke )
+		{
+			this.spotFocusStroke = spotFocusStroke;
+			notifyListeners();
+		}
+	}
+
+	/**
+	 * Gets the stroke used to paint the highlighted spot outlines.
+	 *
+	 * @return the stroke used to paint the highlighted spot outlines.
+	 */
+	public Stroke getSpotHighlightStroke()
+	{
+		return spotHighlightStroke;
+	}
+
+	/**
+	 * Sets the stroke used to paint the highlighted spot outlines.
+	 *
+	 * @param spotHighlightStroke
+	 *            the stroke used to paint the highlighted spot outlines.
+	 */
+	public synchronized void setSpotHighlightStroke( final Stroke spotHighlightStroke )
+	{
+		if ( this.spotHighlightStroke != spotHighlightStroke )
+		{
+			this.spotHighlightStroke = spotHighlightStroke;
+			notifyListeners();
+		}
+	}
+
+	/**
+	 * Gets the stroke used to paint links.
+	 *
+	 * @return the stroke used to paint links.
+	 */
+	public Stroke getLinkStroke()
+	{
+		return linkStroke;
+	}
+
+	/**
+	 * Sets the stroke used to paint links.
+	 *
+	 * @param linkStroke
+	 *            the stroke used to paint links.
+	 */
+	public synchronized void setLinkStroke( final Stroke linkStroke )
+	{
+		if ( this.linkStroke != linkStroke )
+		{
+			this.linkStroke = linkStroke;
+			notifyListeners();
+		}
+	}
+
+	/**
+	 * Gets the stroke used to paint highlighted links.
+	 *
+	 * @return the stroke used to paint links.
+	 */
+	public Stroke getLinkHighlightStroke()
+	{
+		return linkHighlightStroke;
+	}
+
+	/**
+	 * Sets the stroke used to paint highlighted links.
+	 *
+	 * @param linkHighlightStroke
+	 *            the stroke used to paint highlighted links.
+	 */
+	public synchronized void setLinkHighlightStroke( final Stroke linkHighlightStroke )
+	{
+		if ( this.linkHighlightStroke != linkHighlightStroke )
+		{
+			this.linkHighlightStroke = linkHighlightStroke;
 			notifyListeners();
 		}
 	}

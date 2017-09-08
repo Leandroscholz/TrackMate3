@@ -1,12 +1,12 @@
 package org.mastodon.revised.bdv.overlay;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 
@@ -139,6 +139,11 @@ public class OverlayGraphRenderer< V extends OverlayVertex< V, E >, E extends Ov
 		isFocusLimitViewRelative = settings.getFocusLimitViewRelative();
 		ellipsoidFadeDepth = settings.getEllipsoidFadeDepth();
 		pointFadeDepth = settings.getPointFadeDepth();
+		defaultVertexStroke = settings.getSpotStroke();
+		focusedVertexStroke = settings.getSpotFocusStroke();
+		highlightedVertexStroke = settings.getSpotHighlightStroke();
+		defaultEdgeStroke = settings.getLinkStroke();
+		highlightedEdgeStroke = settings.getLinkHighlightStroke();
 	}
 
 	public static final double pointRadius = 2.5;
@@ -264,6 +269,31 @@ public class OverlayGraphRenderer< V extends OverlayVertex< V, E >, E extends Ov
 	 * they are fully opaque, then their alpha value goes to 0 linearly.
 	 */
 	private double pointFadeDepth;
+
+	/**
+	 * The stroke used to paint the spot outlines.
+	 */
+	private Stroke defaultVertexStroke;
+
+	/**
+	 * The stroke used to paint the selected spot outlines.
+	 */
+	private Stroke highlightedVertexStroke;
+
+	/**
+	 * The stroke used to paint the focused spot outlines.
+	 */
+	private Stroke focusedVertexStroke;
+
+	/**
+	 * The stroke used to paint links.
+	 */
+	private Stroke defaultEdgeStroke;
+
+	/**
+	 * The stroke used to paint highlighted links.
+	 */
+	private Stroke highlightedEdgeStroke;
 
 	/**
 	 * Return signed distance of p to z=0 plane, truncated at cutoff and scaled
@@ -476,11 +506,6 @@ public class OverlayGraphRenderer< V extends OverlayVertex< V, E >, E extends Ov
 	public void drawOverlays( final Graphics g )
 	{
 		final Graphics2D graphics = ( Graphics2D ) g;
-		final BasicStroke defaultVertexStroke = new BasicStroke();
-		final BasicStroke highlightedVertexStroke = new BasicStroke( 4f );
-		final BasicStroke focusedVertexStroke = new BasicStroke( 2f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1f, new float[] { 8f, 3f }, 0 );
-		final BasicStroke defaultEdgeStroke = new BasicStroke();
-		final BasicStroke highlightedEdgeStroke = new BasicStroke( 3f );
 		final FontMetrics fontMetrics = graphics.getFontMetrics();
 		final int extraFontHeight = fontMetrics.getAscent() / 2;
 		final int extraFontWidth = fontMetrics.charWidth( ' ' ) / 2;
