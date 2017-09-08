@@ -105,6 +105,7 @@ public class RenderSettings
 		useGradient = settings.useGradient;
 		timeLimit = settings.timeLimit;
 		drawLinks = settings.drawLinks;
+		drawLinkArrows = settings.drawLinkArrows;
 		drawSpots = settings.drawSpots;
 		drawEllipsoidSliceProjection = settings.drawEllipsoidSliceProjection;
 		drawEllipsoidSliceIntersection = settings.drawEllipsoidSliceIntersection;
@@ -115,6 +116,13 @@ public class RenderSettings
 		isFocusLimitViewRelative = settings.isFocusLimitViewRelative;
 		ellipsoidFadeDepth = settings.ellipsoidFadeDepth;
 		pointFadeDepth = settings.pointFadeDepth;
+		spotStroke = settings.spotStroke;
+		spotFocusStroke = settings.spotFocusStroke;
+		spotHighlightStroke = settings.spotHighlightStroke;
+		linkStroke = settings.linkStroke;
+		linkHighlightStroke = settings.linkHighlightStroke;
+		vertexColorGenerator = settings.vertexColorGenerator;
+		edgeColorGenerator = settings.edgeColorGenerator;
 		notifyListeners();
 	}
 
