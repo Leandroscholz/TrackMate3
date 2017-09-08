@@ -32,6 +32,170 @@ public class ColorGenerators
 	private static final Color DEFAULT_VERTEX_COLOR = Color.BLACK;
 
 	/**
+	 * Returns a vertex color generator that assigns the same specified color to
+	 * all vertices.
+	 *
+	 * @param color
+	 *            the color.
+	 * @return a new {@link VertexColorGenerator}
+	 */
+	public static < V extends Vertex< ? > > VertexColorGenerator< V > getVertexFixedColorGenerator( final Color color )
+	{
+		return new FixedVertexColorGenerator<>( color );
+	}
+
+	/**
+	 * Returns a vertex color generator that assigns a color to a vertex based
+	 * on the value of the specified feature projection of the vertex.
+	 * <p>
+	 * If the feature value is not set for the vertex, the color map missing
+	 * color will be assigned to it.
+	 *
+	 * @param featureProjection
+	 *            the vertex feature projection key.
+	 * @param colorMap
+	 *            the color map to draw colors from.
+	 * @param min
+	 *            the range min value for the color map.
+	 * @param max
+	 *            the range max value for the color map.
+	 * @return a new {@link VertexColorGenerator}
+	 */
+	public static < V extends Vertex< ? > > VertexColorGenerator< V > getVertexFeatureColorGenerator( final FeatureProjection< V > featureProjection, final ColorMap colorMap, final double min, final double max )
+	{
+		return new ThisVertexColorGenerator<>( featureProjection, colorMap, min, max );
+	}
+
+	/**
+	 * Returns a vertex color generator that assigns a color to a vertex based
+	 * on the value of the specified feature projection of the incoming edge of
+	 * the vertex.
+	 * <p>
+	 * If the feature value is not set for the vertex, the color map missing
+	 * color will be assigned to it. If the vertex has 0 or more than 1 incoming
+	 * edges, the color map 'non-applicable' color will be assigned to it.
+	 *
+	 * @param featureProjection
+	 *            the edge feature projection key.
+	 * @param colorMap
+	 *            the color map to draw colors from.
+	 * @param min
+	 *            the range min value for the color map.
+	 * @param max
+	 *            the range max value for the color map.
+	 * @return a new {@link VertexColorGenerator}
+	 */
+	public static < V extends Vertex< E >, E extends Edge< V > > VertexColorGenerator< V > getVertexIncomingEdgeFeatureColorGenerator( final FeatureProjection< E > featureProjection, final ColorMap colorMap, final double min, final double max, final ReadOnlyGraph< V, E > graph )
+	{
+		return new IncomingEdgeVertexColorGenerator< V, E >( featureProjection, colorMap, min, max, graph.edgeRef() );
+	}
+
+	/**
+	 * Returns a vertex color generator that assigns a color to a vertex based
+	 * on the value of the specified feature projection of the outgoing edge of
+	 * the vertex.
+	 * <p>
+	 * If the feature value is not set for the vertex, the color map missing
+	 * color will be assigned to it. If the vertex has 0 or more than 1 outgoing
+	 * edges, the color map 'non-applicable' color will be assigned to it.
+	 *
+	 * @param featureProjection
+	 *            the edge feature projection key.
+	 * @param colorMap
+	 *            the color map to draw colors from.
+	 * @param min
+	 *            the range min value for the color map.
+	 * @param max
+	 *            the range max value for the color map.
+	 * @return a new {@link VertexColorGenerator}
+	 */
+	public static < V extends Vertex< E >, E extends Edge< V > > VertexColorGenerator< V > getVertexOutgoingEdgeFeatureColorGenerator( final FeatureProjection< E > featureProjection, final ColorMap colorMap, final double min, final double max, final E ref )
+	{
+		return new OutgoingEdgeVertexColorGenerator< V, E >( featureProjection, colorMap, min, max, ref );
+	}
+
+	/**
+	 * Returns an edge color generator that assigns the same specified color to
+	 * all edges.
+	 *
+	 * @param color
+	 *            the color.
+	 * @return a new {@link EdgeColorGenerator}
+	 */
+	public static < E extends Edge< ? > > EdgeColorGenerator< E > getEdgeFixedColorGenerator( final Color color )
+	{
+		return new FixedEdgeColorGenerator<>( color );
+	}
+
+	/**
+	 * Returns an edge color generator that assigns a color to an edge based on
+	 * the value of the specified feature projection of the edge.
+	 * <p>
+	 * If the feature value is not set for the edge, the color map missing color
+	 * will be assigned to it.
+	 *
+	 * @param featureProjection
+	 *            the edge feature projection key.
+	 * @param colorMap
+	 *            the color map to draw colors from.
+	 * @param min
+	 *            the range min value for the color map.
+	 * @param max
+	 *            the range max value for the color map.
+	 * @return a new {@link EdgeColorGenerator}
+	 */
+	public static < E extends Edge< ? > > EdgeColorGenerator< E > getEdgeFeatureColorGenerator( final FeatureProjection< E > featureProjection, final ColorMap colorMap, final double min, final double max )
+	{
+		return new ThisEdgeColorGenerator<>( featureProjection, colorMap, min, max );
+	}
+
+	/**
+	 * Returns an edge color generator that assigns a color to an edge based on
+	 * the value of the specified feature projection of the source vertex of the
+	 * edge.
+	 * <p>
+	 * If the feature value is not set for the source vertex, the color map
+	 * missing color will be assigned to the edge.
+	 *
+	 * @param featureProjection
+	 *            the vertex feature projection key.
+	 * @param colorMap
+	 *            the color map to draw colors from.
+	 * @param min
+	 *            the range min value for the color map.
+	 * @param max
+	 *            the range max value for the color map.
+	 * @return a new {@link EdgeColorGenerator}
+	 */
+	public static < V extends Vertex< E >, E extends Edge< V > > EdgeColorGenerator< E > getEdgeSourceVertexFeatureColorGenerator( final FeatureProjection< V > featureProjection, final ColorMap colorMap, final double min, final double max, final V ref )
+	{
+		return new SourceVertexEdgeColorGenerator< E, V >( featureProjection, colorMap, min, max, ref );
+	}
+
+	/**
+	 * Returns an edge color generator that assigns a color to an edge based on
+	 * the value of the specified feature projection of the target vertex of the
+	 * edge.
+	 * <p>
+	 * If the feature value is not set for the target vertex, the color map
+	 * missing color will be assigned to the edge.
+	 *
+	 * @param featureProjection
+	 *            the vertex feature projection key.
+	 * @param colorMap
+	 *            the color map to draw colors from.
+	 * @param min
+	 *            the range min value for the color map.
+	 * @param max
+	 *            the range max value for the color map.
+	 * @return a new {@link EdgeColorGenerator}
+	 */
+	public static < V extends Vertex< E >, E extends Edge< V > > EdgeColorGenerator< E > getEdgeTargetVertexFeatureColorGenerator( final FeatureProjection< V > featureProjection, final ColorMap colorMap, final double min, final double max, final V ref )
+	{
+		return new TargetVertexEdgeColorGenerator< E, V >( featureProjection, colorMap, min, max, ref );
+	}
+
+	/**
 	 * Returns a properly configured {@link VertexColorGenerator}.
 	 *
 	 * @param colorMode
@@ -184,7 +348,7 @@ public class ColorGenerators
 	}
 
 	private static final class IncomingEdgeVertexColorGenerator< V extends Vertex< E >, E extends Edge< V > >
-	implements VertexColorGenerator< V >
+			implements VertexColorGenerator< V >
 	{
 
 		private final ColorMap colorMap;
