@@ -95,6 +95,7 @@ public class RenderSettings
 		linkHighlightStroke = DEFAULT_LINK_HIGHLIGHT_STROKE;
 		vertexColorGenerator = DEFAULT_VERTEX_COLOR_GENERATOR;
 		edgeColorGenerator = DEFAULT_EDGE_COLOR_GENERATOR;
+		name = "Default";
 
 		updateListeners = new ArrayList< UpdateListener >();
 	}
@@ -123,6 +124,7 @@ public class RenderSettings
 		linkHighlightStroke = settings.linkHighlightStroke;
 		vertexColorGenerator = settings.vertexColorGenerator;
 		edgeColorGenerator = settings.edgeColorGenerator;
+		name = settings.name;
 		notifyListeners();
 	}
 
@@ -293,6 +295,11 @@ public class RenderSettings
 	 * The edge color generator used to assign a color to edges.
 	 */
 	private OverlayEdgeColorGenerator< ? > edgeColorGenerator;
+
+	/**
+	 * A name that identifies these settings.
+	 */
+	private String name;
 
 	/**
 	 * Get the antialiasing setting.
@@ -932,6 +939,31 @@ public class RenderSettings
 		if ( this.edgeColorGenerator != edgeColorGenerator )
 		{
 			this.edgeColorGenerator = edgeColorGenerator;
+			notifyListeners();
+		}
+	}
+
+	/**
+	 * Gets the name of this render settings object.
+	 *
+	 * @return the name of this render settings object.
+	 */
+	public String getName()
+	{
+		return name;
+	}
+
+	/**
+	 * Sets the name of this render settings object.
+	 *
+	 * @param name
+	 *            the name of this render settings object.
+	 */
+	public synchronized void setName( final String name )
+	{
+		if ( this.name != name )
+		{
+			this.name = name;
 			notifyListeners();
 		}
 	}
