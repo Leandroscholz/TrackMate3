@@ -24,7 +24,7 @@ import org.mastodon.revised.ui.coloring.ColorMode.VertexColorMode;
  *
  * @author Jean-Yves Tinevez
  */
-public class FeaturesColorGenerators
+public class ColorGenerators
 {
 
 	private static final Color DEFAULT_EDGE_COLOR = Color.BLACK;
