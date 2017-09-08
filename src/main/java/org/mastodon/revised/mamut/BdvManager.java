@@ -197,7 +197,7 @@ public class BdvManager
 
 		// TODO revise
 		// RenderSettingsDialog triggered by "R"
-		final RenderSettings renderSettings = new RenderSettings();
+		final RenderSettings renderSettings = RenderSettings.defaultStyle();
 		final String RENDER_SETTINGS = "render settings";
 		final RenderSettingsDialog renderSettingsDialog = new RenderSettingsDialog( viewerFrame, renderSettings );
 		final ActionMap actionMap = new ActionMap();

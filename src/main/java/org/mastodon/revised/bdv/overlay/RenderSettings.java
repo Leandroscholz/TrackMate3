@@ -4,65 +4,13 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Stroke;
 import java.util.ArrayList;
+import java.util.Collection;
 
 import org.mastodon.revised.ui.coloring.ColorGenerators;
 import org.mastodon.revised.ui.coloring.VertexColorGenerator;
 
 public class RenderSettings
 {
-	private static final Color COLOR1 = Color.GREEN;
-
-	private static final Color COLOR2 = Color.RED;
-
-	/*
-	 * PUBLIC DISPLAY CONFIG DEFAULTS.
-	 */
-
-	public static final int DEFAULT_LIMIT_TIME_RANGE = 20;
-
-	public static final double DEFAULT_LIMIT_FOCUS_RANGE = 100.;
-
-	public static final boolean DEFAULT_USE_ANTI_ALIASING = true;
-
-	public static final boolean DEFAULT_USE_GRADIENT = false;
-
-	public static final boolean DEFAULT_DRAW_SPOTS = true;
-
-	public static final boolean DEFAULT_DRAW_LINKS = true;
-
-	public static final boolean DEFAULT_DRAW_LINK_ARROWS = false;
-
-	public static final boolean DEFAULT_DRAW_ELLIPSE = true;
-
-	public static final boolean DEFAULT_DRAW_SLICE_INTERSECTION = true;
-
-	public static final boolean DEFAULT_DRAW_SLICE_PROJECTION = !DEFAULT_DRAW_SLICE_INTERSECTION;
-
-	public static final boolean DEFAULT_DRAW_POINTS = !DEFAULT_DRAW_ELLIPSE || ( DEFAULT_DRAW_ELLIPSE && DEFAULT_DRAW_SLICE_INTERSECTION );
-
-	public static final boolean DEFAULT_DRAW_POINTS_FOR_ELLIPSE = false;
-
-	public static final boolean DEFAULT_DRAW_SPOT_LABELS = false;
-
-	public static final boolean DEFAULT_IS_FOCUS_LIMIT_RELATIVE = true;
-
-	public static final double DEFAULT_ELLIPSOID_FADE_DEPTH = 0.2;
-
-	public static final double DEFAULT_POINT_FADE_DEPTH = 0.2;
-
-	public static final Stroke DEFAULT_SPOT_STROKE = new BasicStroke();
-
-	public static final Stroke DEFAULT_SPOT_HIGHLIGHT_STROKE = new BasicStroke( 4f );
-
-	public static final Stroke DEFAULT_SPOT_FOCUS_STROKE = new BasicStroke( 2f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1f, new float[] { 8f, 3f }, 0 );
-
-	public static final Stroke DEFAULT_LINK_STROKE = new BasicStroke();
-
-	public static final Stroke DEFAULT_LINK_HIGHLIGHT_STROKE = new BasicStroke( 3f );
-
-	public static final VertexColorGenerator< ? > DEFAULT_VERTEX_COLOR_GENERATOR = ColorGenerators.getVertexFixedColorGenerator( COLOR1 );
-
-	public static final OverlayEdgeColorGenerator< ? > DEFAULT_EDGE_COLOR_GENERATOR = new OverlayEdgeFixedColorGenerator<>( COLOR1, COLOR2 );
 
 	public interface UpdateListener
 	{
@@ -71,32 +19,8 @@ public class RenderSettings
 
 	private final ArrayList< UpdateListener > updateListeners;
 
-	public RenderSettings()
+	private RenderSettings()
 	{
-		useAntialiasing = DEFAULT_USE_ANTI_ALIASING;
-		useGradient = DEFAULT_USE_GRADIENT;
-		timeLimit = DEFAULT_LIMIT_TIME_RANGE;
-		drawLinks = DEFAULT_DRAW_LINKS;
-		drawLinkArrows = DEFAULT_DRAW_LINK_ARROWS;
-		drawSpots = DEFAULT_DRAW_SPOTS;
-		drawEllipsoidSliceProjection = DEFAULT_DRAW_SLICE_PROJECTION;
-		drawEllipsoidSliceIntersection = DEFAULT_DRAW_SLICE_INTERSECTION;
-		drawPoints = DEFAULT_DRAW_POINTS;
-		drawPointsForEllipses = DEFAULT_DRAW_POINTS_FOR_ELLIPSE;
-		drawSpotLabels = DEFAULT_DRAW_SPOT_LABELS;
-		focusLimit = DEFAULT_LIMIT_FOCUS_RANGE;
-		isFocusLimitViewRelative = DEFAULT_IS_FOCUS_LIMIT_RELATIVE;
-		ellipsoidFadeDepth = DEFAULT_ELLIPSOID_FADE_DEPTH;
-		pointFadeDepth = DEFAULT_POINT_FADE_DEPTH;
-		spotStroke = DEFAULT_SPOT_STROKE;
-		spotFocusStroke = DEFAULT_SPOT_FOCUS_STROKE;
-		spotHighlightStroke = DEFAULT_SPOT_HIGHLIGHT_STROKE;
-		linkStroke = DEFAULT_LINK_STROKE;
-		linkHighlightStroke = DEFAULT_LINK_HIGHLIGHT_STROKE;
-		vertexColorGenerator = DEFAULT_VERTEX_COLOR_GENERATOR;
-		edgeColorGenerator = DEFAULT_EDGE_COLOR_GENERATOR;
-		name = "Default";
-
 		updateListeners = new ArrayList< UpdateListener >();
 	}
 
@@ -126,6 +50,21 @@ public class RenderSettings
 		edgeColorGenerator = settings.edgeColorGenerator;
 		name = settings.name;
 		notifyListeners();
+	}
+
+	/**
+	 * Copy these render settings using the specified name.
+	 *
+	 * @param name
+	 *            the name for the new render settings.
+	 * @return a new render settings, identical to this one, but for the name.
+	 */
+	public RenderSettings copy( final String name )
+	{
+		final RenderSettings rs = new RenderSettings();
+		rs.set( this );
+		rs.setName( name );
+		return rs;
 	}
 
 	private void notifyListeners()
@@ -968,4 +907,107 @@ public class RenderSettings
 		}
 	}
 
+	/*
+	 * DISPLAY CONFIG DEFAULTS.
+	 */
+
+	private static final Color COLOR1 = Color.GREEN;
+	private static final Color COLOR2 = Color.RED;
+	private static final int DEFAULT_LIMIT_TIME_RANGE = 20;
+	private static final double DEFAULT_LIMIT_FOCUS_RANGE = 100.;
+	private static final boolean DEFAULT_USE_ANTI_ALIASING = true;
+	private static final boolean DEFAULT_USE_GRADIENT = false;
+	private static final boolean DEFAULT_DRAW_SPOTS = true;
+	private static final boolean DEFAULT_DRAW_LINKS = true;
+	private static final boolean DEFAULT_DRAW_LINK_ARROWS = false;
+	private static final boolean DEFAULT_DRAW_ELLIPSE = true;
+	private static final boolean DEFAULT_DRAW_SLICE_INTERSECTION = true;
+	private static final boolean DEFAULT_DRAW_SLICE_PROJECTION = !DEFAULT_DRAW_SLICE_INTERSECTION;
+	private static final boolean DEFAULT_DRAW_POINTS = !DEFAULT_DRAW_ELLIPSE || ( DEFAULT_DRAW_ELLIPSE && DEFAULT_DRAW_SLICE_INTERSECTION );
+	private static final boolean DEFAULT_DRAW_POINTS_FOR_ELLIPSE = false;
+	private static final boolean DEFAULT_DRAW_SPOT_LABELS = false;
+	private static final boolean DEFAULT_IS_FOCUS_LIMIT_RELATIVE = true;
+	private static final double DEFAULT_ELLIPSOID_FADE_DEPTH = 0.2;
+	private static final double DEFAULT_POINT_FADE_DEPTH = 0.2;
+	private static final Stroke DEFAULT_SPOT_STROKE = new BasicStroke();
+	private static final Stroke DEFAULT_SPOT_HIGHLIGHT_STROKE = new BasicStroke( 4f );
+	private static final Stroke DEFAULT_SPOT_FOCUS_STROKE = new BasicStroke( 2f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1f, new float[] { 8f, 3f }, 0 );
+	private static final Stroke DEFAULT_LINK_STROKE = new BasicStroke();
+	private static final Stroke DEFAULT_LINK_HIGHLIGHT_STROKE = new BasicStroke( 3f );
+	private static final VertexColorGenerator< ? > DEFAULT_VERTEX_COLOR_GENERATOR = ColorGenerators.getVertexFixedColorGenerator( COLOR1 );
+	private static final OverlayEdgeColorGenerator< ? > DEFAULT_EDGE_COLOR_GENERATOR = new OverlayEdgeFixedColorGenerator<>( COLOR1, COLOR2 );
+
+	/*
+	 * DEFAULTS RENDER SETTINGS LIBRARY.
+	 */
+
+	private static RenderSettings df;
+	static
+	{
+		df = new RenderSettings();
+		df.useAntialiasing = DEFAULT_USE_ANTI_ALIASING;
+		df.useGradient = DEFAULT_USE_GRADIENT;
+		df.timeLimit = DEFAULT_LIMIT_TIME_RANGE;
+		df.drawLinks = DEFAULT_DRAW_LINKS;
+		df.drawLinkArrows = DEFAULT_DRAW_LINK_ARROWS;
+		df.drawSpots = DEFAULT_DRAW_SPOTS;
+		df.drawEllipsoidSliceProjection = DEFAULT_DRAW_SLICE_PROJECTION;
+		df.drawEllipsoidSliceIntersection = DEFAULT_DRAW_SLICE_INTERSECTION;
+		df.drawPoints = DEFAULT_DRAW_POINTS;
+		df.drawPointsForEllipses = DEFAULT_DRAW_POINTS_FOR_ELLIPSE;
+		df.drawSpotLabels = DEFAULT_DRAW_SPOT_LABELS;
+		df.focusLimit = DEFAULT_LIMIT_FOCUS_RANGE;
+		df.isFocusLimitViewRelative = DEFAULT_IS_FOCUS_LIMIT_RELATIVE;
+		df.ellipsoidFadeDepth = DEFAULT_ELLIPSOID_FADE_DEPTH;
+		df.pointFadeDepth = DEFAULT_POINT_FADE_DEPTH;
+		df.spotStroke = DEFAULT_SPOT_STROKE;
+		df.spotFocusStroke = DEFAULT_SPOT_FOCUS_STROKE;
+		df.spotHighlightStroke = DEFAULT_SPOT_HIGHLIGHT_STROKE;
+		df.linkStroke = DEFAULT_LINK_STROKE;
+		df.linkHighlightStroke = DEFAULT_LINK_HIGHLIGHT_STROKE;
+		df.vertexColorGenerator = DEFAULT_VERTEX_COLOR_GENERATOR;
+		df.edgeColorGenerator = DEFAULT_EDGE_COLOR_GENERATOR;
+		df.name = "Default";
+
+	}
+
+	private static RenderSettings POINT_CLOUD;
+	static
+	{
+		POINT_CLOUD = df.copy( "Point cloud" );
+		POINT_CLOUD.drawLinks = false;
+		POINT_CLOUD.drawEllipsoidSliceIntersection = false;
+		POINT_CLOUD.isFocusLimitViewRelative = false;
+	}
+
+	private static RenderSettings ARROWS;
+	static
+	{
+		ARROWS = df.copy( "Arrows" );
+		ARROWS.drawSpots = false;
+		ARROWS.drawLinkArrows = true;
+	}
+
+	private static RenderSettings NONE;
+	static
+	{
+		NONE = df.copy( "No overlay" );
+		NONE.drawLinks = false;
+		NONE.drawSpots = false;
+	}
+
+	public static Collection< RenderSettings > defaults;
+	static
+	{
+		defaults = new ArrayList<>( 4 );
+		defaults.add( df );
+		defaults.add( POINT_CLOUD );
+		defaults.add( ARROWS );
+		defaults.add( NONE );
+	}
+
+	public static RenderSettings defaultStyle()
+	{
+		return df;
+	}
 }
