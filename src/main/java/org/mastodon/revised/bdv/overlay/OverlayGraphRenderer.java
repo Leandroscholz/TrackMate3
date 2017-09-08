@@ -17,6 +17,7 @@ import org.mastodon.kdtree.ClipConvexPolytope;
 import org.mastodon.kdtree.IncrementalNearestNeighborSearch;
 import org.mastodon.revised.Util;
 import org.mastodon.revised.bdv.overlay.util.BdvRendererUtil;
+import org.mastodon.revised.ui.coloring.VertexColorGenerator;
 import org.mastodon.revised.ui.selection.FocusModel;
 import org.mastodon.revised.ui.selection.HighlightModel;
 import org.mastodon.revised.ui.selection.Selection;
@@ -120,6 +121,7 @@ public class OverlayGraphRenderer< V extends OverlayVertex< V, E >, E extends Ov
 		renderTimepoint = timepoint;
 	}
 
+	@SuppressWarnings( "unchecked" )
 	public void setRenderSettings( final RenderSettings settings )
 	{
 		antialiasing = settings.getUseAntialiasing()
@@ -144,6 +146,8 @@ public class OverlayGraphRenderer< V extends OverlayVertex< V, E >, E extends Ov
 		highlightedVertexStroke = settings.getSpotHighlightStroke();
 		defaultEdgeStroke = settings.getLinkStroke();
 		highlightedEdgeStroke = settings.getLinkHighlightStroke();
+		vertexColorGenerator = ( VertexColorGenerator< V > ) settings.getVertexColorGenerator();
+		edgeColorGenerator = ( OverlayEdgeColorGenerator< E > ) settings.getEdgeColorGenerator();
 	}
 
 	public static final double pointRadius = 2.5;
@@ -286,6 +290,16 @@ public class OverlayGraphRenderer< V extends OverlayVertex< V, E >, E extends Ov
 	private Stroke highlightedEdgeStroke;
 
 	/**
+	 * The vertex color generator used to assign a color to vertices.
+	 */
+	private VertexColorGenerator< V > vertexColorGenerator;
+
+	/**
+	 * The edge color generator used to assign a color to edges.
+	 */
+	private OverlayEdgeColorGenerator< E > edgeColorGenerator;
+
+	/**
 	 * Return signed distance of p to z=0 plane, truncated at cutoff and scaled
 	 * by 1/cutoff. A point on the plane has d=0. A Point that is at cutoff or
 	 * farther behind the plane has d=1. A point that is at -cutoff or more in
@@ -356,7 +370,7 @@ public class OverlayGraphRenderer< V extends OverlayVertex< V, E >, E extends Ov
 	 *            whether to use selected or un-selected color scheme.
 	 * @return vertex/edge color.
 	 */
-	private static Color getColor( final double sd, final double td, final double sdFade, final double tdFade, final boolean isSelected )
+	private static Color getColor( final double sd, final double td, final double sdFade, final double tdFade, final boolean isSelected, final Color color1, final Color color2  )
 	{
 		/*
 		 * |sf| = {                  0  for  |sd| <= sdFade,
@@ -384,11 +398,19 @@ public class OverlayGraphRenderer< V extends OverlayVertex< V, E >, E extends Ov
 			tf = -Math.max( 0, ( -td - tdFade ) / ( 1 - tdFade ) );
 		}
 
-		final double a = -2 * td;
-		final double b = 1 + 2 * td;
+		final double r1 = color1.getRed() / 255.;
+		final double r2 = color2.getRed() / 255.;
+		final double g1 = color1.getGreen() / 255.;
+		final double g2 = color2.getGreen() / 255.;
+		final double b1 = color1.getBlue() / 255.;
+		final double b2 = color2.getBlue() / 255.;
+
+		final double a = r1 + ( -2 * td ) * ( r2 - r1 );
+		final double b = g1 + ( -2 * td ) * ( g2 - g1 );
+		final double c = b1 + ( -2 * td ) * ( b2 - b1 );
 		final double r = isSelected ? b : a;
 		final double g = isSelected ? a : b;
-		return new Color( truncRGBA( r, g, 0.1, ( 1 + tf ) * ( 1 - Math.abs( sf ) ) ), true );
+		return new Color( truncRGBA( r, g, c, ( 1 + tf ) * ( 1 - Math.abs( sf ) ) ), true );
 	}
 
 	/**
@@ -556,10 +578,13 @@ public class OverlayGraphRenderer< V extends OverlayVertex< V, E >, E extends Ov
 							{
 								if ( ( sd0 > -1 && sd0 < 1 ) || ( sd1 > -1 && sd1 < 1 ) )
 								{
-									final Color c1 = getColor( sd1, td1, sliceDistanceFade, timepointDistanceFade, selection.isSelected( edge ) );
+									final Color color1 = edgeColorGenerator.color( edge );
+									final Color color2 = edgeColorGenerator.getColorAway( edge );
+
+									final Color c1 = getColor( sd1, td1, sliceDistanceFade, timepointDistanceFade, selection.isSelected( edge ), color1, color2 );
 									if ( useGradient )
 									{
-										final Color c0 = getColor( sd0, td0, sliceDistanceFade, timepointDistanceFade, selection.isSelected( edge ) );
+										final Color c0 = getColor( sd0, td0, sliceDistanceFade, timepointDistanceFade, selection.isSelected( edge ), color1, color2 );
 										graphics.setPaint( new GradientPaint( x0, y0, c0, x1, y1, c1 ) );
 									}
 									else
@@ -632,7 +657,8 @@ public class OverlayGraphRenderer< V extends OverlayVertex< V, E >, E extends Ov
 
 							graphics.translate( ex, ey );
 							graphics.rotate( theta );
-							graphics.setColor( getColor( 0, 0, ellipsoidFadeDepth, timepointDistanceFade, selection.isSelected( vertex ) ) );
+							final Color color = vertexColorGenerator.color( vertex );
+							graphics.setColor( getColor( 0, 0, ellipsoidFadeDepth, timepointDistanceFade, selection.isSelected( vertex ), color, color ) );
 							if ( isHighlighted )
 								graphics.setStroke( highlightedVertexStroke );
 							else if ( isFocused )
@@ -672,7 +698,8 @@ public class OverlayGraphRenderer< V extends OverlayVertex< V, E >, E extends Ov
 
 							graphics.translate( ex, ey );
 							graphics.rotate( theta );
-							graphics.setColor( getColor( sd, 0, ellipsoidFadeDepth, timepointDistanceFade, selection.isSelected( vertex ) ) );
+							final Color color = vertexColorGenerator.color( vertex );
+							graphics.setColor( getColor( sd, 0, ellipsoidFadeDepth, timepointDistanceFade, selection.isSelected( vertex ), color, color ) );
 							if ( isHighlighted )
 								graphics.setStroke( highlightedVertexStroke );
 							else if ( isFocused )
@@ -699,7 +726,8 @@ public class OverlayGraphRenderer< V extends OverlayVertex< V, E >, E extends Ov
 
 						if ( drawPointAlways || ( drawPointMaybe && !screenVertexMath.intersectsViewPlane() ) )
 						{
-							graphics.setColor( getColor( sd, 0, pointFadeDepth, timepointDistanceFade, selection.isSelected( vertex ) ) );
+							final Color color = vertexColorGenerator.color( vertex );
+							graphics.setColor( getColor( sd, 0, pointFadeDepth, timepointDistanceFade, selection.isSelected( vertex ), color, color ) );
 							double radius = pointRadius;
 							if ( isHighlighted || isFocused )
 								radius *= 2;

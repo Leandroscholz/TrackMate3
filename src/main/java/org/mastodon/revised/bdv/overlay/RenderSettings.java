@@ -1,11 +1,18 @@
 package org.mastodon.revised.bdv.overlay;
 
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Stroke;
 import java.util.ArrayList;
 
+import org.mastodon.revised.ui.coloring.ColorGenerators;
+import org.mastodon.revised.ui.coloring.VertexColorGenerator;
+
 public class RenderSettings
 {
+	private static final Color COLOR1 = Color.GREEN;
+	private static final Color COLOR2 = Color.RED;
+
 	/*
 	 * PUBLIC DISPLAY CONFIG DEFAULTS.
 	 */
@@ -31,6 +38,8 @@ public class RenderSettings
 	public static final Stroke DEFAULT_SPOT_FOCUS_STROKE  = new BasicStroke( 2f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1f, new float[] { 8f, 3f }, 0 );
 	public static final Stroke DEFAULT_LINK_STROKE  = new BasicStroke();
 	public static final Stroke DEFAULT_LINK_HIGHLIGHT_STROKE  = new BasicStroke( 3f );
+	public static final VertexColorGenerator< ? > DEFAULT_VERTEX_COLOR_GENERATOR = ColorGenerators.getVertexFixedColorGenerator( COLOR1 );
+	public static final OverlayEdgeColorGenerator< ? > DEFAULT_EDGE_COLOR_GENERATOR = new OverlayEdgeFixedColorGenerator<>( COLOR1, COLOR2 );
 
 	public interface UpdateListener
 	{
@@ -61,6 +70,8 @@ public class RenderSettings
 		spotHighlightStroke = DEFAULT_SPOT_HIGHLIGHT_STROKE;
 		linkStroke = DEFAULT_LINK_STROKE;
 		linkHighlightStroke = DEFAULT_LINK_HIGHLIGHT_STROKE;
+		vertexColorGenerator = DEFAULT_VERTEX_COLOR_GENERATOR;
+		edgeColorGenerator = DEFAULT_EDGE_COLOR_GENERATOR;
 
 		updateListeners = new ArrayList< UpdateListener >();
 	}
@@ -240,6 +251,16 @@ public class RenderSettings
 	 * The stroke used to paint highlighted links.
 	 */
 	private Stroke linkHighlightStroke;
+
+	/**
+	 * The vertex color generator used to assign a color to vertices.
+	 */
+	private VertexColorGenerator< ? > vertexColorGenerator;
+
+	/**
+	 * The edge color generator used to assign a color to edges.
+	 */
+	private OverlayEdgeColorGenerator< ? > edgeColorGenerator;
 
 	/**
 	 * Get the antialiasing setting.
@@ -706,7 +727,6 @@ public class RenderSettings
 		}
 	}
 
-
 	/**
 	 * Gets the stroke used to paint the spot outlines.
 	 *
@@ -831,4 +851,58 @@ public class RenderSettings
 			notifyListeners();
 		}
 	}
+
+	/**
+	 * Gets the vertex color generator used to assign a color to painted
+	 * vertices.
+	 *
+	 * @return the vertex color generator.
+	 */
+	public VertexColorGenerator< ? > getVertexColorGenerator()
+	{
+		return vertexColorGenerator;
+	}
+
+	/**
+	 * Sets the vertex color generator used to assign a color to painted
+	 * vertices.
+	 *
+	 * @param vertexColorGenerator
+	 *            the vertex color generator.
+	 */
+	public synchronized void setVertexColorGenerator( final VertexColorGenerator< ? > vertexColorGenerator )
+	{
+		if ( this.vertexColorGenerator != vertexColorGenerator )
+		{
+			this.vertexColorGenerator = vertexColorGenerator;
+			notifyListeners();
+		}
+	}
+	/**
+	 * Gets the edge color generator used to assign a color to painted
+	 * edges.
+	 *
+	 * @return the edge color generator.
+	 */
+	public OverlayEdgeColorGenerator< ? > getEdgeColorGenerator()
+	{
+		return edgeColorGenerator;
+	}
+
+	/**
+	 * Sets the edge color generator used to assign a color to painted
+	 * edges.
+	 *
+	 * @param edgeColorGenerator
+	 *            the edge color generator.
+	 */
+	public synchronized void setEdgeColorGenerator( final OverlayEdgeColorGenerator< ? > edgeColorGenerator )
+	{
+		if ( this.edgeColorGenerator != edgeColorGenerator )
+		{
+			this.edgeColorGenerator = edgeColorGenerator;
+			notifyListeners();
+		}
+	}
+
 }
