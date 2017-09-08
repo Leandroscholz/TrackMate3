@@ -43,6 +43,8 @@ public class RenderSettingsPanel extends JPanel implements UpdateListener
 
 	private final JCheckBox linksBox;
 
+	private final JCheckBox linkArrowsBox;
+
 	private final JCheckBox spotsBox;
 
 	private final AbstractButton centersBox;
@@ -113,6 +115,23 @@ public class RenderSettingsPanel extends JPanel implements UpdateListener
 		c.anchor = GridBagConstraints.LINE_START;
 		c.gridx = 1;
 		add( new JLabel("draw links"), c );
+
+		c.gridy++;
+		linkArrowsBox = new JCheckBox();
+		linkArrowsBox.addActionListener( new ActionListener()
+		{
+			@Override
+			public void actionPerformed( final ActionEvent e )
+			{
+				renderSettings.setDrawLinkArrows( linkArrowsBox.isSelected() );
+			}
+		} );
+		c.anchor = GridBagConstraints.LINE_END;
+		c.gridx = 0;
+		add( linkArrowsBox, c );
+		c.anchor = GridBagConstraints.LINE_START;
+		c.gridx = 1;
+		add( new JLabel("draw link arrows"), c );
 
 
 		c.gridy++;

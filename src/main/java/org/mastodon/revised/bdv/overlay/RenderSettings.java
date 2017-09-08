@@ -14,6 +14,7 @@ public class RenderSettings
 	public static final boolean DEFAULT_USE_GRADIENT = false;
 	public static final boolean DEFAULT_DRAW_SPOTS = true;
 	public static final boolean DEFAULT_DRAW_LINKS = true;
+	public static final boolean DEFAULT_DRAW_LINK_ARROWS = false;
 	public static final boolean DEFAULT_DRAW_ELLIPSE = true;
 	public static final boolean DEFAULT_DRAW_SLICE_INTERSECTION = true;
 	public static final boolean DEFAULT_DRAW_SLICE_PROJECTION = !DEFAULT_DRAW_SLICE_INTERSECTION;
@@ -37,6 +38,7 @@ public class RenderSettings
 		useGradient = DEFAULT_USE_GRADIENT;
 		timeLimit = DEFAULT_LIMIT_TIME_RANGE;
 		drawLinks = DEFAULT_DRAW_LINKS;
+		drawLinkArrows = DEFAULT_DRAW_LINK_ARROWS;
 		drawSpots = DEFAULT_DRAW_SPOTS;
 		drawEllipsoidSliceProjection = DEFAULT_DRAW_SLICE_PROJECTION;
 		drawEllipsoidSliceIntersection = DEFAULT_DRAW_SLICE_INTERSECTION;
@@ -116,6 +118,11 @@ public class RenderSettings
 	 * Whether to draw links (at all).
 	 */
 	private boolean drawLinks;
+
+	/**
+	 * Whether to draw link arrow heads.
+	 */
+	private boolean drawLinkArrows;
 
 	/**
 	 * Whether to draw spots (at all).
@@ -292,7 +299,8 @@ public class RenderSettings
 
 	/**
 	 * Sets whether to draw links (at all). For specific settings, see
-	 * {@link #setTimeLimit(int)}, {@link #setUseGradient(boolean)}.
+	 * {@link #setTimeLimit(int)}, {@link #setUseGradient(boolean)},
+	 * {@link #setDrawLinkArrows(boolean)}.
 	 *
 	 * @param drawLinks
 	 *            whether to draw links.
@@ -302,6 +310,31 @@ public class RenderSettings
 		if ( this.drawLinks != drawLinks )
 		{
 			this.drawLinks = drawLinks;
+			notifyListeners();
+		}
+	}
+
+	/**
+	 * Gets whether to draw link arrow heads.
+	 *
+	 * @return {@code true} if link arrow heads are drawn.
+	 */
+	public boolean getDrawLinkArrows()
+	{
+		return drawLinkArrows;
+	}
+
+	/**
+	 * Set whether to draw link arrow heads.
+	 *
+	 * @param drawLinkArrows
+	 *            whether to draw link arrow heads.
+	 */
+	public synchronized void setDrawLinkArrows( final boolean drawLinkArrows )
+	{
+		if ( this.drawLinkArrows != drawLinkArrows )
+		{
+			this.drawLinkArrows = drawLinkArrows;
 			notifyListeners();
 		}
 	}

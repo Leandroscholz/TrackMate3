@@ -128,6 +128,7 @@ public class OverlayGraphRenderer< V extends OverlayVertex< V, E >, E extends Ov
 		useGradient = settings.getUseGradient();
 		timeLimit = settings.getTimeLimit();
 		drawLinks = settings.getDrawLinks();
+		drawLinkArrows = settings.getDrawLinkArrows();
 		drawSpots = settings.getDrawSpots();
 		drawEllipsoidSliceProjection = settings.getDrawEllipsoidSliceProjection();
 		drawEllipsoidSliceIntersection = settings.getDrawEllipsoidSliceIntersection();
@@ -175,6 +176,11 @@ public class OverlayGraphRenderer< V extends OverlayVertex< V, E >, E extends Ov
 	 * {@link #useGradient} and {@link #timeLimit}.
 	 */
 	private boolean drawLinks;
+
+	/**
+	 * Whether do draw link arrow heads.
+	 */
+	private boolean drawLinkArrows;
 
 	/**
 	 * Whether to draw spots (at all). For specific settings, see
@@ -564,19 +570,20 @@ public class OverlayGraphRenderer< V extends OverlayVertex< V, E >, E extends Ov
 									graphics.drawLine( x0, y0, x1, y1 );
 
 									// Draw arrows for edge direction.
-									/*
-									final double dx = x1 - x0;
-									final double dy = y1 - y0;
-									final double alpha = Math.atan2( dy, dx );
-									final double l = 5;
-									final double theta = Math.PI / 6.;
-									final int x1a = ( int ) Math.round( x1 - l * Math.cos( alpha - theta ) );
-									final int x1b = ( int ) Math.round( x1 - l * Math.cos( alpha + theta ) );
-									final int y1a = ( int ) Math.round( y1 - l * Math.sin( alpha - theta ) );
-									final int y1b = ( int ) Math.round( y1 - l * Math.sin( alpha + theta ) );
-									graphics.drawLine( x1, y1, x1a, y1a );
-									graphics.drawLine( x1, y1, x1b, y1b );
-									*/
+									if ( drawLinkArrows )
+									{
+										final double dx = x1 - x0;
+										final double dy = y1 - y0;
+										final double alpha = Math.atan2( dy, dx );
+										final double l = 5;
+										final double theta = Math.PI / 6.;
+										final int x1a = ( int ) Math.round( x1 - l * Math.cos( alpha - theta ) );
+										final int x1b = ( int ) Math.round( x1 - l * Math.cos( alpha + theta ) );
+										final int y1a = ( int ) Math.round( y1 - l * Math.sin( alpha - theta ) );
+										final int y1b = ( int ) Math.round( y1 - l * Math.sin( alpha + theta ) );
+										graphics.drawLine( x1, y1, x1a, y1a );
+										graphics.drawLine( x1, y1, x1b, y1b );
+									}
 
 									if ( isHighlighted )
 										graphics.setStroke( defaultEdgeStroke );
