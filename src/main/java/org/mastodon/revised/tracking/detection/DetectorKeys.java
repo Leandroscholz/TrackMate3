@@ -1,4 +1,4 @@
-package org.mastodon.revised.detection;
+package org.mastodon.revised.tracking.detection;
 
 import bdv.spimdata.SpimDataMinimal;
 import net.imglib2.Interval;

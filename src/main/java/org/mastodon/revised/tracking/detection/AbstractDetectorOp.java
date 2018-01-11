@@ -1,4 +1,4 @@
-package org.mastodon.revised.detection;
+package org.mastodon.revised.tracking.detection;
 
 import org.mastodon.graph.Vertex;
 import org.mastodon.properties.DoublePropertyMap;

@@ -1,4 +1,4 @@
-package org.mastodon.revised.detection;
+package org.mastodon.revised.tracking.detection;
 
 public interface HasErrorMessage
 {

@@ -1,7 +1,7 @@
 /*
  * Copied from Stephan Preibish FFT Convolution class. Stripped for use with Mastodon.
  */
-package org.mastodon.revised.detection;
+package org.mastodon.revised.tracking.detection;
 
 import net.imglib2.Cursor;
 import net.imglib2.FinalDimensions;

@@ -1,11 +1,11 @@
-package org.mastodon.revised.detection;
+package org.mastodon.revised.tracking.detection;
 
-import static org.mastodon.revised.detection.DetectorKeys.KEY_MAX_TIMEPOINT;
-import static org.mastodon.revised.detection.DetectorKeys.KEY_MIN_TIMEPOINT;
-import static org.mastodon.revised.detection.DetectorKeys.KEY_RADIUS;
-import static org.mastodon.revised.detection.DetectorKeys.KEY_ROI;
-import static org.mastodon.revised.detection.DetectorKeys.KEY_SETUP_ID;
-import static org.mastodon.revised.detection.DetectorKeys.KEY_THRESHOLD;
+import static org.mastodon.revised.tracking.detection.DetectorKeys.KEY_MAX_TIMEPOINT;
+import static org.mastodon.revised.tracking.detection.DetectorKeys.KEY_MIN_TIMEPOINT;
+import static org.mastodon.revised.tracking.detection.DetectorKeys.KEY_RADIUS;
+import static org.mastodon.revised.tracking.detection.DetectorKeys.KEY_ROI;
+import static org.mastodon.revised.tracking.detection.DetectorKeys.KEY_SETUP_ID;
+import static org.mastodon.revised.tracking.detection.DetectorKeys.KEY_THRESHOLD;
 
 import java.util.ArrayList;
 import java.util.Map;
