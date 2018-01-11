@@ -1,63 +1,77 @@
-package org.mastodon.revised.tracking.prediction;
+package org.mastodon.revised.mamut.tracking.prediction;
 
 import org.mastodon.collection.RefList;
 import org.mastodon.collection.RefObjectMap;
-import org.mastodon.graph.Edge;
 import org.mastodon.graph.Graph;
-import org.mastodon.graph.ReadOnlyGraph;
-import org.mastodon.graph.Vertex;
 import org.mastodon.graph.algorithm.AbstractGraphAlgorithm;
 import org.mastodon.graph.algorithm.ShortestPath;
 import org.mastodon.graph.algorithm.traversal.GraphSearch.SearchDirection;
 import org.mastodon.graph.algorithm.util.Graphs;
-
-import net.imglib2.RealLocalizable;
+import org.mastodon.revised.model.mamut.Link;
+import org.mastodon.revised.model.mamut.ModelGraph;
+import org.mastodon.revised.model.mamut.Spot;
+import org.mastodon.revised.tracking.prediction.Predictor;
+import org.mastodon.revised.tracking.prediction.StateAndCovariance;
 
 /**
  * A measurement predictor that relies on the Kalman filter with a motion model
  * set to nearly constant velocity.
- * 
+ *
  * @author Jean-Yves Tinevez
  *
- * @param <V>
+ * @param <Spot>
  *            the type of vertices in the graph.
- * @param <E>
+ * @param <Link>
  *            the type of edges in the graph.
  */
-public class NearlyConstantVelocityPredictor< V extends Vertex< E > & RealLocalizable, E extends Edge< V > >
-		extends AbstractGraphAlgorithm< V, E >
-		implements Predictor< V >
+public class NearlyConstantVelocityPredictor
+		extends AbstractGraphAlgorithm< Spot, Link >
+		implements Predictor< Spot >
 {
+
+	/**
+	 * N dims.
+	 */
+	private static final int n = 3;
 
 	/**
 	 * The map that links track heads to their Kalman filter.
 	 */
-	private final RefObjectMap< V, NCVKalmanFilter > kfMap;
+	private final RefObjectMap< Spot, NCVKalmanFilter > kfMap;
 
-	public NearlyConstantVelocityPredictor( ReadOnlyGraph< V, E > graph )
+	public NearlyConstantVelocityPredictor( final ModelGraph graph )
 	{
 		super( graph );
 		this.kfMap = createVertexObjectMap();
 	}
 
 	@Override
-	public RealLocalizable predict( V trackHead )
+	public StateAndCovariance predict( final Spot trackHead )
 	{
+		// Retrieve or create a KF for this head.
+		final NCVKalmanFilter kf = getKalmanFilter( trackHead );
+		if ( null == kf )
+		{
+			// Dummy prediction.
+			final double[] X0 = new double[ n ];
+			final double[][] cov = new double[ 2 * n ][ 2 * n ];
+			// Covariance upper-left quadrant (position covariance).
+			trackHead.getCovariance( cov );
+			for ( int d = 0; d < n; d++ )
+			{
+				X0[ d ] = trackHead.getDoublePosition( d );
+				X0[ n + d ] = 0.;
+				cov[ n + d ][ n + d ] = Double.POSITIVE_INFINITY;
+			}
+			return new StateAndCovariance( X0, cov );
+		}
 
-		/*
-		 * Is there an existing Kalman filter for the specified vertex?
-		 */
-		NCVKalmanFilter kalmanFilter = kfMap.get( trackHead );
-		if ( null == kalmanFilter )
-			;
-
-		// TODO Auto-generated method stub
-		return null;
+		return kf.getPredictedState();
 	}
 
 	/**
 	 * Retrieves or creates a Kalman filter for the specified vertex.
-	 * 
+	 *
 	 * <ul>
 	 * <li>If a KF is registered in this class for the specified vertex, it is
 	 * returned.
@@ -78,13 +92,13 @@ public class NearlyConstantVelocityPredictor< V extends Vertex< E > & RealLocali
 	 * </ul>
 	 * </ul>
 	 * </ul>
-	 * 
+	 *
 	 * @param vertex
 	 *            the vertex to find or create a Kalman filter for.
 	 * @return a Kalman filter, or <code>null</code> if the specified vertex is
 	 *         a track tail or a track fusion.
 	 */
-	private NCVKalmanFilter getKalmanFilter( V vertex )
+	private NCVKalmanFilter getKalmanFilter( final Spot vertex )
 	{
 		if ( kfMap.get( vertex ) != null )
 			return kfMap.get( vertex );
@@ -92,23 +106,24 @@ public class NearlyConstantVelocityPredictor< V extends Vertex< E > & RealLocali
 		if ( vertex.incomingEdges().size() != 1 )
 			return null;
 
-		final E eref = graph.edgeRef();
-		final V vref1 = graph.vertexRef();
-		final V vref2 = graph.vertexRef();
-		V current = assign( vertex, vref2 );
+		final Link eref = graph.edgeRef();
+		final Spot vref1 = graph.vertexRef();
+		final Spot vref2 = graph.vertexRef();
+		Spot current = assign( vertex, vref2 );
 		NCVKalmanFilter kf;
 
 		// Do we have a kf registered?
 		while ( ( kf = kfMap.get( current ) ) == null )
 		{
 			// Walk back.
-			final E edge = vertex.incomingEdges().get( 0, eref );
-			final V parent = Graphs.getOppositeVertex( edge, current, vref1 );
+			final Link edge = current.incomingEdges().get( 0, eref );
+			final Spot parent = Graphs.getOppositeVertex( edge, current, vref1 );
 
 			// Did we reach a track tail or a track fusion?
 			if ( current.incomingEdges().size() != 1 )
 			{
-				kf = instantiateKalmanFilter( parent, current );
+				kf = instantiateKalmanFilter( current, parent );
+				current = assign( parent, current );
 				break;
 			}
 
@@ -126,6 +141,7 @@ public class NearlyConstantVelocityPredictor< V extends Vertex< E > & RealLocali
 				throw new IllegalArgumentException( "Iterated over a track that is a loop." );
 			}
 		}
+
 		// Deregister from the vertex.
 		kfMap.remove( current );
 
@@ -136,14 +152,27 @@ public class NearlyConstantVelocityPredictor< V extends Vertex< E > & RealLocali
 		 * from the current vertex to the specified one, but they might be track
 		 * splits on the way. So we use a shortest path algorithm.
 		 */
-		
-		// FIXME: Fix stupid mistake in ShortestPath and have it accept ReadOnlyGraph.
-		ShortestPath< V, E > shortestPath = new ShortestPath<V, E>( (Graph<V, E>) graph, SearchDirection.REVERSED);
+
+		final ShortestPath< Spot, Link > shortestPath = new ShortestPath<>( ( Graph< Spot, Link > ) graph, SearchDirection.REVERSED );
 		// Path is in reversed order so...
-		RefList< V > path = shortestPath.findPath( vertex, current );
-		for ( V v : path )
-			kf.update( v );
-		
+		final RefList< Spot > path = shortestPath.findPath( vertex, current );
+		/*
+		 * Remove the first spot, from which the KF was created or retrieved (we
+		 * want to update it with the subsequent spots).
+		 */
+		path.remove( 0 );
+
+		// Update loop.
+		final double[] pos = new double[ n ];
+		final double[][] cov = new double[ n ][ n ];
+		for ( final Spot v : path )
+		{
+			v.localize( pos );
+			v.getCovariance( cov );
+			kf.predict();
+			kf.update( pos, cov );
+		}
+
 		kfMap.put( vertex, kf );
 		graph.releaseRef( eref );
 		graph.releaseRef( vref1 );
@@ -151,10 +180,22 @@ public class NearlyConstantVelocityPredictor< V extends Vertex< E > & RealLocali
 		return kf;
 	}
 
-	private NCVKalmanFilter instantiateKalmanFilter( V sourceVertex, V targetVertex )
+	private NCVKalmanFilter instantiateKalmanFilter( final Spot sourceVertex, final Spot targetVertex )
 	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+		// Initial state:
+		final double[] X0 = new double[ 2 * n ];
+		for ( int d = 0; d < n; d++ )
+		{
+			X0[ d ] = targetVertex.getDoublePosition( d );
+			X0[ n + d ] = targetVertex.getDoublePosition( d ) - sourceVertex.getDoublePosition( d );
+		}
 
+		final double[][] positionCovariance = new double[ n ][ n ];
+		targetVertex.getCovariance( positionCovariance );
+
+		final double initStateCovariance = 1e-1;
+		final double positionProcessStd = Math.sqrt( targetVertex.getBoundingSphereRadiusSquared() ) / 100.;
+		final double velocityProcessStd = Math.sqrt( targetVertex.getBoundingSphereRadiusSquared() ) / 100.;
+		return new NCVKalmanFilter( X0, positionCovariance, initStateCovariance, positionProcessStd, velocityProcessStd );
+	}
 }
